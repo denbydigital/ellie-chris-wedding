@@ -196,17 +196,17 @@ export default function HomePage() {
 
       {/* ══ HERO — full-bleed photo with invitation overlay ══ */}
       <section className="relative w-full overflow-hidden" style={{ height: '100svh', minHeight: 640 }}>
-        {/* Photo */}
-        <Image
-          src="/assets/venue/scenic-accommodation-5.jpg"
-          alt="Hobbit Hill at night"
-          fill priority
-          className="object-cover object-center"
-          sizes="100vw"
-        />
-        {/* Layered overlays: dark base + sage tint */}
+        {/* Video — audio stripped, silent autoplay */}
+        <video
+          autoPlay muted loop playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          poster="/assets/venue/scenic-accommodation-5.jpg"
+        >
+          <source src="/assets/hero.mp4" type="video/mp4" />
+        </video>
+        {/* Overlay */}
         <div className="absolute inset-0" style={{
-          background: 'linear-gradient(to bottom, rgba(40,50,40,0.52) 0%, rgba(40,50,40,0.38) 50%, rgba(40,50,40,0.65) 100%)'
+          background: 'linear-gradient(to bottom, rgba(40,50,40,0.42) 0%, rgba(40,50,40,0.28) 50%, rgba(40,50,40,0.58) 100%)'
         }} />
 
         {/* Invitation card */}
