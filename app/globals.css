@@ -95,3 +95,13 @@ body {
 
 /* Focus ring override for gold */
 .focus-gold:focus { outline: none; border-color: theme(colors.gold-500) !important; }
+
+/* Reduced motion — crossfade only, no movement */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
