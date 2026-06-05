@@ -142,18 +142,14 @@ import React from 'react'
    GALLERY DATA
 ═══════════════════════════════════════════════════════ */
 const GALLERY = [
-  { src: '/assets/venue/gallery-1.jpg',  alt: 'Ceremony under the flower arch',         ar: '3/4'  },
-  { src: '/assets/venue/ceremony-outdoor.jpg', alt: 'The ceremony at Hobbit Hill',       ar: '2/3'  },
-  { src: '/assets/venue/gallery-3.jpg',  alt: 'Wedding at Hobbit Hill',                  ar: '3/2'  },
-  { src: '/assets/venue/gallery-5.jpg',  alt: 'Celebrations at Hobbit Hill',             ar: '3/2'  },
-  { src: '/assets/venue/gallery-2.jpg',  alt: 'Bride and groom at Hobbit Hill',          ar: '3/4'  },
-  { src: '/assets/venue/gallery-12.jpg', alt: 'Couple with smoke grenade at dusk',       ar: '3/2'  },
-  { src: '/assets/venue/gallery-6.jpg',  alt: 'Wedding party at Hobbit Hill',            ar: '3/4'  },
-  { src: '/assets/venue/gallery-7.jpg',  alt: 'Celebrations in the Ribble Valley',       ar: '3/2'  },
-  { src: '/assets/venue/gallery-8.jpg',  alt: 'Hobbit Hill outdoor ceremony',            ar: '3/2'  },
-  { src: '/assets/venue/gallery-4.jpg',  alt: 'Wedding party in the woodland',           ar: '3/4'  },
-  { src: '/assets/venue/gallery-9.jpg',  alt: 'Wedding celebration',                     ar: '3/2'  },
-  { src: '/assets/venue/gallery-10.jpg', alt: 'A beautiful day at Hobbit Hill',          ar: '3/2'  },
+  { src: '/assets/venue/scenic-accommodation-5.jpg', alt: 'Hobbit Hill cabins lit up at night',          ar: '4/3'  },
+  { src: '/assets/venue/scenic-accommodation-3.jpg', alt: 'The Shire dining kitchen',                    ar: '4/3'  },
+  { src: '/assets/venue/interior.jpg',               alt: 'Wedding breakfast room with valley views',    ar: '4/3'  },
+  { src: '/assets/venue/scenic-accommodation-1.jpg', alt: 'The bridal suite at Hobbit Hill',             ar: '4/3'  },
+  { src: '/assets/venue/scenic-accommodation-2.jpg', alt: 'Hobbit Hill hallway',                         ar: '3/4'  },
+  { src: '/assets/venue/scenic-lodge-1.jpg',         alt: 'The luxury lodge at Hobbit Hill',             ar: '4/3'  },
+  { src: '/assets/venue/scenic-lodge-2.jpg',         alt: 'Lodge bedroom at Hobbit Hill',                ar: '4/3'  },
+  { src: '/assets/venue/scenic-watercolour.jpg',     alt: 'Watercolour of the ceremony arch',            ar: '3/4'  },
 ]
 
 /* ─── Schedule data ─── */
@@ -202,8 +198,8 @@ export default function HomePage() {
       <section className="relative w-full overflow-hidden" style={{ height: '100svh', minHeight: 640 }}>
         {/* Photo */}
         <Image
-          src="/assets/venue/ceremony-outdoor.jpg"
-          alt="The ceremony at Hobbit Hill"
+          src="/assets/venue/scenic-accommodation-5.jpg"
+          alt="Hobbit Hill at night"
           fill priority
           className="object-cover object-center"
           sizes="100vw"
@@ -282,8 +278,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══ FULL-BLEED PHOTO — couple on swing ══ */}
-      <PhotoBreak src="/assets/venue/hero-couple.jpg" alt="Celebrating at Hobbit Hill" height={520} overlay={0.1} />
+      {/* ══ FULL-BLEED PHOTO — sage kitchen with flowers ══ */}
+      <PhotoBreak src="/assets/venue/scenic-accommodation-3.jpg" alt="Hobbit Hill venue" height={520} overlay={0.05} />
 
       {/* ══ OUR STORY ══ */}
       <section className="bg-cream px-8 py-24">
@@ -291,12 +287,13 @@ export default function HomePage() {
           <SectionLabel eyebrow="How we got here" title="Our Story" />
           <div className="grid gap-14 items-start" style={{ gridTemplateColumns: '1fr 1fr' }}>
             {/* Photo */}
-            <motion.div className="relative overflow-hidden rounded-[4px]"
+            <motion.div
+              className="relative flex items-center justify-center bg-cream-bright border border-sage-200 rounded-[4px] p-8"
               style={{ aspectRatio: '3/4' }}
               variants={fadeUp} initial="hidden" whileInView="visible" viewport={VIEWPORT}>
-              <Image src="/assets/venue/gallery-1.jpg" alt="The ceremony arch at Hobbit Hill"
-                fill className="object-cover" sizes="50vw" />
-              <div className="absolute inset-0 border border-sage-200/60 rounded-[4px] pointer-events-none" />
+              <Image src="/assets/venue/scenic-watercolour.jpg"
+                alt="Watercolour of the ceremony arch at Hobbit Hill"
+                fill className="object-contain p-6" sizes="50vw" />
             </motion.div>
             {/* Timeline */}
             <div className="py-4">
@@ -323,8 +320,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══ FULL-BLEED PHOTO — bridesmaids / valley ══ */}
-      <PhotoBreak src="/assets/venue/sanctuary.jpg" alt="The Ribble Valley at Hobbit Hill" height={500} overlay={0.15} />
+      {/* ══ FULL-BLEED PHOTO — dining room with valley view ══ */}
+      <PhotoBreak src="/assets/venue/interior.jpg" alt="The wedding breakfast room at Hobbit Hill" height={500} overlay={0.05} />
 
       {/* ══ THE DAY ══ */}
       <section className="bg-cream px-8 py-24">
@@ -358,8 +355,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══ FULL-BLEED PHOTO — interior dining ══ */}
-      <PhotoBreak src="/assets/venue/interior.jpg" alt="The wedding breakfast at Hobbit Hill" height={480} overlay={0.1} />
+      {/* ══ FULL-BLEED PHOTO — hallway with flowers ══ */}
+      <PhotoBreak src="/assets/venue/scenic-accommodation-2.jpg" alt="Hobbit Hill accommodation" height={480} overlay={0.05} />
 
       {/* ══ TRAVEL ══ */}
       <section className="bg-cream px-8 py-24">
@@ -447,8 +444,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══ FULL-BLEED PHOTO — smoke grenade / dusk ══ */}
-      <PhotoBreak src="/assets/venue/gallery-12.jpg" alt="Celebrating at Hobbit Hill at dusk" height={500} overlay={0.2} />
+      {/* ══ FULL-BLEED PHOTO — cabins at night ══ */}
+      <PhotoBreak src="/assets/venue/scenic-accommodation-5.jpg" alt="Hobbit Hill at night" height={500} overlay={0.1} />
 
       {/* ══ FAQ ══ */}
       <section className="bg-cream px-8 py-24">
