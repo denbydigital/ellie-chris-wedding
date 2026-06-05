@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 340" fill="none">
+  
+  <g stroke="currentColor" stroke-width="1.1" stroke-linecap="round" opacity="0.9" fill="none">
+    
+    <path d="M210 332 C150 300 96 250 64 180 C44 136 36 86 40 36"></path>
+    
+    <path d="M150 290 C140 274 134 258 138 240"></path>
+    <path d="M120 256 C108 244 100 230 102 214"></path>
+    <path d="M96 214 C86 198 82 180 88 162"></path>
+    <path d="M76 176 C66 158 64 138 72 120"></path>
+    <path d="M58 132 C50 114 50 92 60 74"></path>
+    <path d="M64 180 C82 176 100 178 116 188"></path>
+    <path d="M48 96 C64 92 80 96 92 108"></path>
+    
+    <path d="M138 240 c10 -2 18 -10 20 -22 c-12 2 -18 10 -20 22 Z" fill="#A7B09C" stroke="none" opacity="0.55"></path>
+    <path d="M102 214 c10 -2 18 -10 20 -22 c-12 2 -18 10 -20 22 Z" fill="#A7B09C" stroke="none" opacity="0.55"></path>
+    <path d="M72 120 c-10 -2 -18 -8 -22 -20 c12 0 20 6 22 20 Z" fill="#A7B09C" stroke="none" opacity="0.5"></path>
+  </g>
+  
+  <g>
+    <circle cx="138" cy="238" r="3.4" fill="#EDEFE6"></circle>
+    <circle cx="150" cy="222" r="2.6" fill="#EDEFE6"></circle>
+    <circle cx="128" cy="222" r="2.4" fill="#DCC489"></circle>
+    <circle cx="102" cy="212" r="3.2" fill="#EDEFE6"></circle>
+    <circle cx="114" cy="198" r="2.4" fill="#EDEFE6"></circle>
+    <circle cx="90" cy="200" r="2.4" fill="#DCC489"></circle>
+    <circle cx="88" cy="160" r="3.2" fill="#EDEFE6"></circle>
+    <circle cx="100" cy="150" r="2.4" fill="#EDEFE6"></circle>
+    <circle cx="78" cy="150" r="2.4" fill="#EDEFE6"></circle>
+    <circle cx="72" cy="118" r="3" fill="#EDEFE6"></circle>
+    <circle cx="84" cy="108" r="2.2" fill="#DCC489"></circle>
+    <circle cx="62" cy="106" r="2.4" fill="#EDEFE6"></circle>
+    <circle cx="60" cy="72" r="3" fill="#EDEFE6"></circle>
+    <circle cx="50" cy="62" r="2.2" fill="#EDEFE6"></circle>
+    <circle cx="72" cy="64" r="2.2" fill="#DCC489"></circle>
+    <circle cx="40" cy="34" r="3.2" fill="#EDEFE6"></circle>
+    <circle cx="30" cy="44" r="2.2" fill="#EDEFE6"></circle>
+    <circle cx="52" cy="28" r="2.2" fill="#EDEFE6"></circle>
+    <circle cx="116" cy="188" r="2.4" fill="#EDEFE6"></circle>
+    <circle cx="92" cy="108" r="2.4" fill="#EDEFE6"></circle>
+  </g>
+</svg>

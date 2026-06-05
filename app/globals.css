@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Ellie & Chris — Design Tokens (Tailwind v4 @theme)
+   ============================================================ */
+@theme inline {
+  /* Colours */
+  --color-sage-100: #E6E9DE;
+  --color-sage-200: #D7DCCD;
+  --color-sage-300: #C2C9B8;
+  --color-sage-400: #A7B09C;
+  --color-sage-500: #939D8C;
+  --color-sage-600: #828D77;
+  --color-sage-700: #6E7865;
+  --color-sage-800: #5A6450;
+  --color-cream:        #EDEFE6;
+  --color-cream-bright: #F4F5EE;
+  --color-ivory:        #F6F4EC;
+  --color-forest-600: #36412F;
+  --color-forest-800: #283228;
+  --color-forest-900: #1B231B;
+  --color-gold-300: #DCC489;
+  --color-gold-500: #C2A24E;
+  --color-gold-700: #9A7A2E;
+  --color-fg1: #5A6450;
+  --color-fg2: #5C6553;
+  --color-fg3: #818A77;
+
+  /* Fonts */
+  --font-display: 'Cormorant Garamond', 'Times New Roman', serif;
+  --font-body:    'EB Garamond', Georgia, serif;
+  --font-ui:      'Jost', 'Helvetica Neue', system-ui, sans-serif;
+  --font-script:  'Pinyon Script', 'Snell Roundhand', cursive;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(31,42,36,0.06);
+  --shadow-md: 0 8px 24px -12px rgba(31,42,36,0.18);
+  --shadow-lg: 0 24px 60px -28px rgba(31,42,36,0.30);
+
+  /* Easing */
+  --ease-wedding: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Raw CSS variables (for use in arbitrary values) */
+:root {
+  --line-on-sage: rgba(241,242,235,0.45);
+  --on-sage-1: #F1F2EB;
+  --on-sage-2: #DDE1D3;
+  --on-sage-3: #C4CAB6;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-body);
+  background: theme(colors.cream);
+  color: theme(colors.fg2);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25%      { transform: translateX(-8px); }
+  75%      { transform: translateX(8px); }
+}
+
+.animate-fade-in  { animation: fadeIn 0.5s var(--ease-wedding) both; }
+.animate-shake    { animation: shake 0.35s var(--ease-wedding); }
+
+/* Paper wash overlay used on sage sections */
+.paper-wash {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(130% 90% at 50% -20%, rgba(241,242,235,0.16), transparent 55%),
+    radial-gradient(80% 60% at 50% 120%, rgba(40,50,40,0.14), transparent 60%);
+}
+
+/* Gold double frame (invitation card border) */
+.invitation-frame {
+  position: relative;
+  border: 1px solid var(--line-on-sage);
+  padding: 48px 36px 52px;
+}
+.invitation-frame::after {
+  content: '';
+  position: absolute; inset: 11px;
+  border: 1px solid rgba(220,196,137,0.55);
+  pointer-events: none;
+}
+
+/* Focus ring override for gold */
+.focus-gold:focus { outline: none; border-color: theme(colors.gold-500) !important; }
