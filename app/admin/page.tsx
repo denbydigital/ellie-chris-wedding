@@ -301,10 +301,29 @@ export default function AdminPage() {
                   <tbody>
                     {guests
                       .filter(g => guestFilter === 'all' || g.status === guestFilter)
-                      .filter(g => !guestSearch || g.name.toLowerCase().includes(guestSearch.toLowerCase()) || g.email.toLowerCase().includes(guestSearch.toLowerCase()))
+                      .filter(g => {
+                        if (!guestSearch) return true
+                        const q = guestSearch.toLowerCase()
+                        return g.name.toLowerCase().includes(q)
+                          || g.email.toLowerCase().includes(q)
+                          || (g.guests_json ?? []).some(p => p.name?.toLowerCase().includes(q))
+                      })
                       .map(g => (
-                      <tr key={g.id} className="border-b border-sage-200 hover:bg-sage-100 transition-colors">
-                        <td className="px-5 py-3 font-medium text-fg1 whitespace-nowrap">{g.name}</td>
+                      <tr key={g.id} className="border-b border-sage-200 hover:bg-sage-100 transition-colors align-top">
+                        <td className="px-5 py-3 whitespace-nowrap">
+                          <div className="font-medium text-fg1">{g.name}</div>
+                          {g.status === 'attending' && g.guests_json?.length > 0 && (
+                            <ul className="mt-1.5 flex flex-col gap-0.5">
+                              {g.guests_json.map((p, i) => (
+                                <li key={i} className="font-[var(--font-ui)] text-[12px] text-fg3 flex items-center gap-1.5">
+                                  <span className="w-1 h-1 rounded-full bg-gold-500 shrink-0" />
+                                  {p.name?.trim() || `Guest ${i + 1}`}
+                                  {p.meal && <span className="text-sage-500">· {p.meal}</span>}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </td>
                         <td className="px-5 py-3 text-fg3">{g.email}</td>
                         <td className="px-5 py-3">{badge(g.status)}</td>
                         <td className="px-5 py-3 text-fg2 text-center">{g.status === 'attending' ? g.party_size : '—'}</td>
