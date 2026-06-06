@@ -162,7 +162,10 @@ export default function AdminPage() {
   const attending = guests.filter(g => g.status === 'attending')
   const declined  = guests.filter(g => g.status === 'declined')
   const pending   = guests.filter(g => g.status === 'pending')
-  const totalGuests = attending.reduce((s, g) => s + g.party_size, 0)
+  // Headcount derives from the named guests (same source as meals) so the
+  // two figures can never disagree; fall back to party_size if ever empty.
+  const headcount = (g: Guest) => (g.guests_json?.length || g.party_size || 0)
+  const totalGuests = attending.reduce((s, g) => s + headcount(g), 0)
   const declinedGuests = declined.reduce((s, g) => s + (g.max_guests ?? 1), 0)
   const maxHeadcount = guests.reduce((s, g) => s + (g.max_guests ?? 1), 0)
   const meals = attending.flatMap(g => g.guests_json)
@@ -326,7 +329,7 @@ export default function AdminPage() {
                         </td>
                         <td className="px-5 py-3 text-fg3">{g.email}</td>
                         <td className="px-5 py-3">{badge(g.status)}</td>
-                        <td className="px-5 py-3 text-fg2 text-center">{g.status === 'attending' ? g.party_size : '—'}</td>
+                        <td className="px-5 py-3 text-fg2 text-center">{g.status === 'attending' ? (g.guests_json?.length || g.party_size) : '—'}</td>
                         <td className="px-5 py-3 text-fg3 whitespace-nowrap">{g.responded_at?.slice(0,10) || '—'}</td>
                         <td className="px-5 py-3">
                           {g.invite_token ? (
