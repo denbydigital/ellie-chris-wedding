@@ -23,13 +23,13 @@ export default function FloralBackdrop() {
         src="/assets/floral-left.png"
         alt=""
         className="hidden md:block absolute top-0 left-0 h-full w-auto"
-        style={{ clipPath: clipStyle, opacity: 0.9 }}
+        style={{ clipPath: clipStyle, opacity: 1 }}
       />
       <motion.img
         src="/assets/floral-right.png"
         alt=""
         className="hidden md:block absolute top-0 right-0 h-full w-auto"
-        style={{ clipPath: clipStyle, opacity: 0.9 }}
+        style={{ clipPath: clipStyle, opacity: 1 }}
       />
     </div>
   )

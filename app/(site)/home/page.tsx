@@ -281,8 +281,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══ FULL-BLEED PHOTO — barn interior, white draping ══ */}
-      <PhotoBreak src="/assets/venue/anna-9.jpg" alt="The barn at Hobbit Hill" height={560} overlay={0.08} />
+      {/* ══ FULL-BLEED PHOTO — ceremony arch through the trees ══ */}
+      <PhotoBreak src="/assets/venue/anna-4.jpg" alt="The ceremony arch at Hobbit Hill, framed by trees" height={560} overlay={0.08} />
 
       {/* ══ OUR STORY ══ */}
       <section className="px-8 py-24">
@@ -290,18 +290,10 @@ export default function HomePage() {
           <SectionLabel light eyebrow="How we got here" title="Our Story" />
           <div className="grid gap-14 items-start grid-cols-1 md:grid-cols-2">
             {/* Photo */}
-            <motion.div className="flex flex-col gap-5"
+            <motion.div className="md:sticky md:top-24"
               variants={fadeUp} initial="hidden" whileInView="visible" viewport={VIEWPORT}>
-              {/* Ceremony arch — empty, framed by trees */}
-              <div className="relative overflow-hidden rounded-[4px]" style={{ aspectRatio: '3/2' }}>
-                <Image src="/assets/venue/anna-4.jpg"
-                  alt="The ceremony arch at Hobbit Hill, framed by trees"
-                  fill className="object-cover" sizes="50vw" />
-                <div className="absolute inset-0 border border-sage-200/40 rounded-[4px] pointer-events-none" />
-              </div>
-              {/* Couple photo */}
-              <div className="relative overflow-hidden rounded-[4px] bg-cream-bright border border-sage-200 p-2.5 shadow-sm">
-                <div className="relative overflow-hidden rounded-[2px]" style={{ aspectRatio: '1/1' }}>
+              <div className="bg-cream-bright border border-sage-200 p-2.5 shadow-sm rounded-[4px]">
+                <div className="relative overflow-hidden rounded-[2px]" style={{ aspectRatio: '4/5' }}>
                   <Image src="/assets/couple.jpg"
                     alt="Ellie and Chris"
                     fill
