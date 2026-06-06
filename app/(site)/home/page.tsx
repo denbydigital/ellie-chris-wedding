@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import GoldDivider from '@/components/ui/GoldDivider'
 import Button from '@/components/ui/Button'
+import FloralBackdrop from '@/components/ui/FloralBackdrop'
 import { fadeUp, riseUp, scaleIn, slideLeft, stagger, VIEWPORT, EASE_OUT_EXPO } from '@/lib/animation'
 
 /* ─── Reveal wrapper ─── */
@@ -39,13 +40,13 @@ function Countdown() {
         <motion.div key={l} variants={fadeUp} className="flex flex-col items-center min-w-[64px]">
           <AnimatePresence mode="popLayout">
             <motion.span key={`${l}-${n}`}
-              className="font-[var(--font-display)] font-medium text-[52px] leading-none text-sage-700 tabular-nums"
+              className="font-[var(--font-display)] font-medium text-[52px] leading-none text-[var(--on-sage-1)] tabular-nums"
               initial={{ opacity: 0.4, y: -5 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: EASE_OUT_EXPO }}>
               {String(n).padStart(2, '0')}
             </motion.span>
           </AnimatePresence>
-          <span className="font-[var(--font-ui)] text-[11px] tracking-[0.26em] uppercase text-fg3 mt-2">{l}</span>
+          <span className="font-[var(--font-ui)] text-[11px] tracking-[0.26em] uppercase text-[var(--on-sage-3)] mt-2">{l}</span>
         </motion.div>
       ))}
     </motion.div>
@@ -66,13 +67,13 @@ function FaqAccordion() {
   return (
     <div className="max-w-[720px] mx-auto">
       {FAQS.map((f, i) => (
-        <motion.div key={i} className="border-b border-sage-200" variants={fadeUp}
+        <motion.div key={i} className="border-b border-[var(--line-on-sage)]" variants={fadeUp}
           initial="hidden" whileInView="visible" viewport={VIEWPORT}
           transition={{ delay: i * 0.07 } as object}>
           <button onClick={() => setOpen(open === i ? null : i)}
             className="w-full flex items-center justify-between gap-4 bg-transparent border-none cursor-pointer py-5 px-1 text-left">
-            <span className="font-[var(--font-display)] font-semibold text-[21px] text-fg1">{f.q}</span>
-            <motion.span className="shrink-0 w-6 h-6 relative text-gold-700"
+            <span className="font-[var(--font-display)] font-semibold text-[21px] text-[var(--on-sage-1)]">{f.q}</span>
+            <motion.span className="shrink-0 w-6 h-6 relative text-gold-300"
               animate={{ rotate: open === i ? 45 : 0 }}
               transition={{ duration: 0.25, ease: EASE_OUT_EXPO }}>
               <span className="absolute top-1/2 left-1/2 w-3.5 h-px bg-current -translate-x-1/2 -translate-y-1/2" />
@@ -84,7 +85,7 @@ function FaqAccordion() {
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.4, ease: EASE_OUT_EXPO }}
                 style={{ overflow: 'hidden' }}>
-                <p className="font-[var(--font-body)] text-[17px] leading-[1.7] text-fg2 mx-1 mb-6">{f.a}</p>
+                <p className="font-[var(--font-body)] text-[17px] leading-[1.7] text-[var(--on-sage-2)] mx-1 mb-6">{f.a}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -192,7 +193,9 @@ const STORY = [
 ═══════════════════════════════════════════════════════ */
 export default function HomePage() {
   return (
-    <div className="bg-sage-100">
+    <div className="relative bg-sage-500">
+      <FloralBackdrop />
+      <div className="relative" style={{ zIndex: 1 }}>
 
       {/* ══ HERO — full-bleed photo with invitation overlay ══ */}
       <section className="relative w-full overflow-hidden" style={{ height: '100svh', minHeight: 640 }}>
@@ -258,21 +261,21 @@ export default function HomePage() {
       </section>
 
       {/* ══ WELCOME + COUNTDOWN ══ */}
-      <section className="bg-sage-100 py-24 px-8">
+      <section className="py-24 px-8">
         <div className="max-w-[680px] mx-auto text-center">
           <Reveal variants={riseUp}>
-            <h2 className="font-[var(--font-display)] font-medium text-fg1 mb-6"
+            <h2 className="font-[var(--font-display)] font-medium text-[var(--on-sage-1)] mb-6"
               style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', lineHeight: 1.15 }}>
               After eight summers together, we&apos;re making it official in the hills we love.
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
-            <p className="font-[var(--font-body)] text-[19px] leading-[1.7] text-fg2">
+            <p className="font-[var(--font-body)] text-[19px] leading-[1.7] text-[var(--on-sage-2)]">
               We can&apos;t wait to celebrate with you at Hobbit Hill — a day of good food, long toasts, and dancing under the Ribble Valley sky.
             </p>
           </Reveal>
           <div className="my-14">
-            <GoldDivider width={100} color="var(--color-gold-500)" />
+            <GoldDivider width={100} color="var(--color-gold-300)" />
           </div>
           <Countdown />
         </div>
@@ -282,9 +285,9 @@ export default function HomePage() {
       <PhotoBreak src="/assets/venue/anna-9.jpg" alt="The barn at Hobbit Hill" height={560} overlay={0.08} />
 
       {/* ══ OUR STORY ══ */}
-      <section className="bg-sage-100 px-8 py-24">
+      <section className="px-8 py-24">
         <div className="max-w-[1000px] mx-auto">
-          <SectionLabel eyebrow="How we got here" title="Our Story" />
+          <SectionLabel light eyebrow="How we got here" title="Our Story" />
           <div className="grid gap-14 items-start grid-cols-1 md:grid-cols-2">
             {/* Photo */}
             <motion.div className="flex flex-col gap-5"
@@ -315,7 +318,7 @@ export default function HomePage() {
             {/* Timeline */}
             <div className="py-4">
               <ol className="list-none m-0 p-0 relative">
-                <motion.span className="absolute left-[7px] top-2 bottom-2 w-px bg-sage-300 origin-top"
+                <motion.span className="absolute left-[7px] top-2 bottom-2 w-px bg-[var(--line-on-sage)] origin-top"
                   initial={{ scaleY: 0 }} whileInView={{ scaleY: 1 }} viewport={VIEWPORT}
                   transition={{ duration: 1.2, ease: EASE_OUT_EXPO, delay: 0.2 }} />
                 {STORY.map((s, i) => (
@@ -326,9 +329,9 @@ export default function HomePage() {
                     <motion.span className="absolute left-0 top-1.5 w-[15px] h-[15px] rounded-full bg-sage-100 border-2 border-gold-500"
                       initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={VIEWPORT}
                       transition={{ delay: i * 0.12 + 0.1, duration: 0.4, ease: EASE_OUT_EXPO } as object} />
-                    <p className="font-[var(--font-ui)] text-[12px] tracking-[0.24em] uppercase text-gold-700 mb-1.5">{s.year}</p>
-                    <h3 className="font-[var(--font-display)] font-semibold text-[24px] text-fg1 m-0 mb-2">{s.title}</h3>
-                    <p className="font-[var(--font-body)] text-[17px] leading-[1.65] text-fg2 m-0">{s.body}</p>
+                    <p className="font-[var(--font-ui)] text-[12px] tracking-[0.24em] uppercase text-gold-300 mb-1.5">{s.year}</p>
+                    <h3 className="font-[var(--font-display)] font-semibold text-[24px] text-[var(--on-sage-1)] m-0 mb-2">{s.title}</h3>
+                    <p className="font-[var(--font-body)] text-[17px] leading-[1.65] text-[var(--on-sage-2)] m-0">{s.body}</p>
                   </motion.li>
                 ))}
               </ol>
@@ -341,9 +344,9 @@ export default function HomePage() {
       <PhotoBreak src="/assets/venue/anna-8.jpg" alt="The Ribble Valley from Hobbit Hill" height={500} overlay={0.1} />
 
       {/* ══ THE DAY ══ */}
-      <section className="bg-sage-100 px-8 py-24">
+      <section className="px-8 py-24">
         <div className="max-w-[760px] mx-auto">
-          <SectionLabel eyebrow="Saturday, 10 July 2027" title="The Day" />
+          <SectionLabel light eyebrow="Saturday, 10 July 2027" title="The Day" />
           <motion.div className="flex flex-col gap-3"
             variants={stagger(0, 0.09)} initial="hidden" whileInView="visible" viewport={VIEWPORT}>
             {EVENTS.map((e, i) => (
@@ -365,7 +368,7 @@ export default function HomePage() {
             ))}
           </motion.div>
           <Reveal delay={0.3}>
-            <p className="mt-8 text-center font-[var(--font-body)] italic text-[15px] text-fg3">
+            <p className="mt-8 text-center font-[var(--font-body)] italic text-[15px] text-[var(--on-sage-2)]">
               Dress code: garden formal — summer suits and floaty frocks. The lawn is grass, so maybe pack a flat shoe.
             </p>
           </Reveal>
@@ -376,9 +379,9 @@ export default function HomePage() {
       <PhotoBreak src="/assets/venue/interior.jpg" alt="The wedding breakfast room at Hobbit Hill" height={480} overlay={0.04} />
 
       {/* ══ TRAVEL ══ */}
-      <section className="bg-sage-100 px-8 py-24">
+      <section className="px-8 py-24">
         <div className="max-w-[900px] mx-auto">
-          <SectionLabel eyebrow="Getting here" title="Travel & Stay" />
+          <SectionLabel light eyebrow="Getting here" title="Travel & Stay" />
           <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-5"
             variants={stagger(0, 0.1)} initial="hidden" whileInView="visible" viewport={VIEWPORT}>
             {TRAVEL.map((c, i) => (
@@ -399,9 +402,9 @@ export default function HomePage() {
       </section>
 
       {/* ══ REGISTRY ══ */}
-      <section className="bg-sage-100 px-8 py-24">
+      <section className="px-8 py-24">
         <div className="max-w-[900px] mx-auto">
-          <SectionLabel eyebrow="Your presence is the present" title="Registry" />
+          <SectionLabel light eyebrow="Your presence is the present" title="Registry" />
           <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-5"
             variants={stagger(0, 0.1)} initial="hidden" whileInView="visible" viewport={VIEWPORT}>
             {GIFTS.map((g, i) => (
@@ -429,7 +432,7 @@ export default function HomePage() {
             ))}
           </motion.div>
           <Reveal delay={0.2}>
-            <p className="max-w-[520px] mx-auto mt-10 text-center font-[var(--font-body)] italic text-[16px] text-fg3">
+            <p className="max-w-[520px] mx-auto mt-10 text-center font-[var(--font-body)] italic text-[16px] text-[var(--on-sage-2)]">
               A card on the day is always welcome — and always treasured.
             </p>
           </Reveal>
@@ -437,9 +440,9 @@ export default function HomePage() {
       </section>
 
       {/* ══ GALLERY — real venue photos ══ */}
-      <section className="bg-sage-100 px-8 py-24">
+      <section className="px-8 py-24">
         <div className="max-w-[1100px] mx-auto">
-          <SectionLabel eyebrow="Hobbit Hill" title="The Venue" />
+          <SectionLabel light eyebrow="Hobbit Hill" title="The Venue" />
           <motion.div
             className="columns-2 md:columns-3 gap-4"
             variants={stagger(0, 0.05)} initial="hidden" whileInView="visible" viewport={VIEWPORT}>
@@ -454,7 +457,7 @@ export default function HomePage() {
             ))}
           </motion.div>
           <Reveal delay={0.2}>
-            <p className="text-center mt-8 font-[var(--font-body)] italic text-[16px] text-fg3">
+            <p className="text-center mt-8 font-[var(--font-body)] italic text-[16px] text-[var(--on-sage-2)]">
               After the wedding, we&apos;ll add your own photos here too.
             </p>
           </Reveal>
@@ -465,13 +468,13 @@ export default function HomePage() {
       <PhotoBreak src="/assets/venue/anna-1.jpg" alt="Hobbit Hill venue and cabins" height={500} overlay={0.08} />
 
       {/* ══ FAQ ══ */}
-      <section className="bg-sage-100 px-8 py-24">
+      <section className="px-8 py-24">
         <div className="max-w-[760px] mx-auto">
-          <SectionLabel eyebrow="Good to know" title="Questions" />
+          <SectionLabel light eyebrow="Good to know" title="Questions" />
           <FaqAccordion />
           <Reveal delay={0.3}>
             <div className="text-center mt-10">
-              <p className="font-[var(--font-body)] italic text-[16px] text-fg3 mb-4">Still curious about something?</p>
+              <p className="font-[var(--font-body)] italic text-[16px] text-[var(--on-sage-2)] mb-4">Still curious about something?</p>
               <Button variant="gold">Email Ellie &amp; Chris</Button>
             </div>
           </Reveal>
@@ -479,15 +482,15 @@ export default function HomePage() {
       </section>
 
       {/* ══ RSVP CONFIRMED ══ */}
-      <section className="bg-sage-100 px-8 py-24 pb-28">
+      <section className="px-8 py-24 pb-28">
         <div className="max-w-[600px] mx-auto text-center">
-          <SectionLabel eyebrow="You're on the list" title="See you there" />
+          <SectionLabel light eyebrow="You're on the list" title="See you there" />
           <Reveal delay={0.1}>
-            <p className="font-[var(--font-body)] text-[18px] leading-[1.75] text-fg2">
+            <p className="font-[var(--font-body)] text-[18px] leading-[1.75] text-[var(--on-sage-2)]">
               Your reply is in and we couldn&apos;t be happier. If anything changes —
               a dietary need, a party detail — drop us a line and we&apos;ll sort it.
             </p>
-            <p className="font-[var(--font-body)] italic text-[16px] text-fg3 mt-6">
+            <p className="font-[var(--font-body)] italic text-[16px] text-[var(--on-sage-3)] mt-6">
               We can&apos;t wait to celebrate with you at Hobbit Hill.
             </p>
             <div className="mt-8">
@@ -497,6 +500,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      </div>
     </div>
   )
 }
