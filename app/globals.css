@@ -72,17 +72,6 @@ body {
 .animate-fade-in  { animation: fadeIn 0.5s var(--ease-wedding) both; }
 .animate-shake    { animation: shake 0.35s var(--ease-wedding); }
 
-/* Gently drifting floral corners (background) */
-@keyframes floatTL {
-  0%, 100% { transform: translate(0, 0); }
-  50%      { transform: translate(10px, 8px); }
-}
-@keyframes floatBR {
-  0%, 100% { transform: rotate(180deg) translate(0, 0); }
-  50%      { transform: rotate(180deg) translate(10px, 8px); }
-}
-.floral-drift-tl { animation: floatTL 18s ease-in-out infinite; will-change: transform; }
-.floral-drift-br { transform: rotate(180deg); animation: floatBR 22s ease-in-out infinite; will-change: transform; }
 
 /* Paper wash overlay used on sage sections */
 .paper-wash {
