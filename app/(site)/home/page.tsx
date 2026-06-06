@@ -142,13 +142,13 @@ import React from 'react'
    GALLERY DATA
 ═══════════════════════════════════════════════════════ */
 const GALLERY = [
-  { src: '/assets/venue/scenic-accommodation-5.jpg', alt: 'Hobbit Hill cabins lit up at night',          ar: '4/3'  },
+  { src: '/assets/venue/venue-exterior-clean.jpg',   alt: 'Hobbit Hill venue',                           ar: '4/3'  },
   { src: '/assets/venue/scenic-accommodation-3.jpg', alt: 'The Shire dining kitchen',                    ar: '4/3'  },
+  { src: '/assets/venue/snug.jpg',                   alt: 'The snug lounge at Hobbit Hill',              ar: '4/3'  },
   { src: '/assets/venue/interior.jpg',               alt: 'Wedding breakfast room with valley views',    ar: '4/3'  },
   { src: '/assets/venue/scenic-accommodation-1.jpg', alt: 'The bridal suite at Hobbit Hill',             ar: '4/3'  },
   { src: '/assets/venue/scenic-accommodation-2.jpg', alt: 'Hobbit Hill hallway',                         ar: '3/4'  },
-  { src: '/assets/venue/scenic-lodge-1.jpg',         alt: 'The luxury lodge at Hobbit Hill',             ar: '4/3'  },
-  { src: '/assets/venue/scenic-lodge-2.jpg',         alt: 'Lodge bedroom at Hobbit Hill',                ar: '4/3'  },
+  { src: '/assets/venue/scenic-accommodation-5.jpg', alt: 'Hobbit Hill cabins at night',                 ar: '4/3'  },
   { src: '/assets/venue/scenic-watercolour.jpg',     alt: 'Watercolour of the ceremony arch',            ar: '3/4'  },
 ]
 
@@ -320,8 +320,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══ FULL-BLEED PHOTO — dining room with valley view ══ */}
-      <PhotoBreak src="/assets/venue/interior.jpg" alt="The wedding breakfast room at Hobbit Hill" height={500} overlay={0.05} />
+      {/* ══ FULL-BLEED PHOTO — snug lounge with log fire ══ */}
+      <PhotoBreak src="/assets/venue/snug.jpg" alt="The snug at Hobbit Hill" height={500} overlay={0.05} />
 
       {/* ══ THE DAY ══ */}
       <section className="bg-cream px-8 py-24">
@@ -355,8 +355,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══ FULL-BLEED PHOTO — hallway with flowers ══ */}
-      <PhotoBreak src="/assets/venue/scenic-accommodation-2.jpg" alt="Hobbit Hill accommodation" height={480} overlay={0.05} />
+      {/* ══ FULL-BLEED PHOTO — dining room with valley views ══ */}
+      <PhotoBreak src="/assets/venue/interior.jpg" alt="The wedding breakfast room at Hobbit Hill" height={480} overlay={0.05} />
 
       {/* ══ TRAVEL ══ */}
       <section className="bg-cream px-8 py-24">
