@@ -1,20 +1,17 @@
 'use client'
-import { motion, useScroll, useSpring, useTransform, useReducedMotion } from 'framer-motion'
+import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
 
 /**
- * Botanical line-art down the left & right edges (extracted from the
- * couple's reference). As you scroll the page, a clip-path wipe reveals
- * them top-to-bottom — like they're being drawn on. Fixed behind content,
- * hidden on small screens so they never crowd the text.
+ * Botanical line-art down the left & right edges (from the couple's
+ * reference). Fixed behind the content and fully visible — they gently
+ * fade in over the first stretch of scroll, then stay. Hidden on small
+ * screens so they never crowd the text.
  */
 export default function FloralBackdrop() {
   const reduce = useReducedMotion()
   const { scrollYProgress } = useScroll()
-  const p = useSpring(scrollYProgress, { stiffness: 80, damping: 26, mass: 0.4 })
-
-  // Reveal from the top downward as the page scrolls.
-  const clip = useTransform(p, [0, 0.8], ['inset(0 0 100% 0)', 'inset(0 0 0% 0)'])
-  const clipStyle = reduce ? 'inset(0 0 0% 0)' : clip
+  const fade = useTransform(scrollYProgress, [0, 0.08], [0, 1])
+  const opacity = reduce ? 1 : fade
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }} aria-hidden>
@@ -22,14 +19,14 @@ export default function FloralBackdrop() {
       <motion.img
         src="/assets/floral-left.png"
         alt=""
-        className="hidden md:block absolute top-0 left-0 h-full w-auto"
-        style={{ clipPath: clipStyle, opacity: 1 }}
+        className="hidden md:block absolute top-0 left-0 h-full w-auto object-cover object-left"
+        style={{ opacity }}
       />
       <motion.img
         src="/assets/floral-right.png"
         alt=""
-        className="hidden md:block absolute top-0 right-0 h-full w-auto"
-        style={{ clipPath: clipStyle, opacity: 1 }}
+        className="hidden md:block absolute top-0 right-0 h-full w-auto object-cover object-right"
+        style={{ opacity }}
       />
     </div>
   )
