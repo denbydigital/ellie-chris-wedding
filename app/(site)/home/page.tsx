@@ -138,21 +138,6 @@ function PhotoBreak({ src, alt, height = 560, overlay = 0.25 }: {
 
 
 
-/* ═══════════════════════════════════════════════════════
-   GALLERY DATA
-═══════════════════════════════════════════════════════ */
-const GALLERY = [
-  { src: '/assets/venue/anna-9.jpg',                 alt: 'The barn at Hobbit Hill',                     ar: '4/3'  },
-  { src: '/assets/venue/anna-4.jpg',                 alt: 'The ceremony arch framed by trees',           ar: '2/3'  },
-  { src: '/assets/venue/anna-1.jpg',                 alt: 'Hobbit Hill venue and cabins',                ar: '4/3'  },
-  { src: '/assets/venue/anna-10.jpg',                alt: 'The glamping cabins at Hobbit Hill',          ar: '4/3'  },
-  { src: '/assets/venue/anna-8.jpg',                 alt: 'The Ribble Valley from Hobbit Hill',          ar: '4/3'  },
-  { src: '/assets/venue/interior.jpg',               alt: 'Wedding breakfast room with valley views',    ar: '4/3'  },
-  { src: '/assets/venue/scenic-accommodation-5.jpg', alt: 'Hobbit Hill cabins at night',                 ar: '4/3'  },
-  { src: '/assets/venue/snug.jpg',                   alt: 'The snug lounge at Hobbit Hill',              ar: '4/3'  },
-  { src: '/assets/venue/scenic-watercolour.jpg',     alt: 'Watercolour of the ceremony arch',            ar: '3/4'  },
-]
-
 /* ─── Schedule data ─── */
 const EVENTS = [
   { time: '1:00',  period: 'pm', title: 'Guests Arrive',     body: 'Welcome drinks on the lawn. Hats encouraged, comfortable shoes essential.',   icon: <path d="M8 22h8M12 15v7M5 3h14l-1.5 7a5.5 5.5 0 0 1-11 0L5 3Z"/> },
@@ -431,27 +416,51 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══ GALLERY — real venue photos ══ */}
+      {/* ══ THE VENUE — location map ══ */}
       <section className="px-8 py-24">
-        <div className="max-w-[1100px] mx-auto">
-          <SectionLabel light eyebrow="Hobbit Hill" title="The Venue" />
-          <motion.div
-            className="columns-2 md:columns-3 gap-4"
-            variants={stagger(0, 0.05)} initial="hidden" whileInView="visible" viewport={VIEWPORT}>
-            {GALLERY.map((img, i) => (
-              <motion.div key={i}
-                className="break-inside-avoid mb-4 overflow-hidden rounded-[4px] group cursor-zoom-in"
-                variants={{ hidden: { opacity: 0, scale: 0.97 }, visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: EASE_OUT_EXPO, delay: i * 0.04 } } }}>
-                <div className="relative overflow-hidden" style={{ aspectRatio: img.ar }}>
-                  <Image src={img.src} alt={img.alt} fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 33vw" />
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-          <Reveal delay={0.2}>
-            <p className="text-center mt-8 font-[var(--font-body)] italic text-[16px] text-[var(--on-sage-2)]">
-              After the wedding, we&apos;ll add your own photos here too.
+        <div className="max-w-[900px] mx-auto">
+          <SectionLabel light eyebrow="Where we'll be" title="The Venue" />
+          <Reveal>
+            <p className="text-center font-[var(--font-body)] text-[18px] leading-[1.65] text-[var(--on-sage-2)] -mt-4 mb-10">
+              Hobbit Hill, nestled in the Ribble Valley just outside Clitheroe.
+              <br className="hidden sm:block" />
+              <span className="font-[var(--font-ui)] text-[13px] tracking-[0.2em] uppercase text-[var(--on-sage-3)]">
+                Sat-nav postcode: BB7 1AX
+              </span>
             </p>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="bg-cream-bright border border-sage-200 p-2.5 shadow-md rounded-[6px]">
+              <div className="relative overflow-hidden rounded-[3px]" style={{ aspectRatio: '16/10' }}>
+                <iframe
+                  title="Hobbit Hill location map"
+                  src="https://www.google.com/maps?q=Hobbit%20Hill%20Clitheroe%20BB7%201AX&output=embed"
+                  className="absolute inset-0 w-full h-full"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <div className="text-center mt-8 flex flex-col items-center gap-3">
+              <a
+                href="https://www.google.com/maps/dir/?api=1&destination=Hobbit%20Hill%20Clitheroe%20BB7%201AX"
+                target="_blank" rel="noopener noreferrer"
+                className="font-[var(--font-ui)] text-[12px] tracking-[0.2em] uppercase text-gold-300 hover:text-gold-500 transition-colors"
+              >
+                Get directions ↗
+              </a>
+              <a
+                href="https://www.hobbithill.co.uk/"
+                target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 font-[var(--font-ui)] text-[13px] tracking-[0.22em] uppercase px-8 py-[15px] rounded-[4px] bg-gold-500 text-forest-800 border border-gold-500 hover:bg-gold-700 hover:border-gold-700 transition-colors no-underline"
+              >
+                Visit the venue website
+              </a>
+            </div>
           </Reveal>
         </div>
       </section>
