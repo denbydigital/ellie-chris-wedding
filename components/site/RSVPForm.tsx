@@ -7,28 +7,58 @@ import type { GuestPerson, RSVPFormData } from '@/lib/types'
 
 const MEALS = ['Chicken', 'Beef', 'Vegetarian', 'Vegan', 'Child'] as const
 
-export default function RSVPForm() {
+interface Prefill {
+  name: string
+  email: string
+  maxGuests?: number
+  existingGuests?: GuestPerson[]
+  existingSong?: string
+  existingNotes?: string
+  existingStatus?: 'pending' | 'attending' | 'declined'
+}
+
+export default function RSVPForm({ prefill }: { prefill?: Prefill }) {
   const router = useRouter()
-  const [attending, setAttending] = useState<'yes' | 'no'>('yes')
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [guests, setGuests] = useState<GuestPerson[]>([{ name: '', meal: 'Chicken' }])
-  const [song, setSong] = useState('')
-  const [notes, setNotes] = useState('')
+
+  const defaultAttending = prefill?.existingStatus === 'declined' ? 'no' : 'yes'
+  const defaultGuests = prefill?.existingGuests?.length
+    ? prefill.existingGuests
+    : [{ name: prefill?.name ?? '', meal: 'Chicken' as const }]
+
+  const [attending, setAttending] = useState<'yes' | 'no'>(defaultAttending)
+  const [name, setName] = useState(prefill?.name ?? '')
+  const [email, setEmail] = useState(prefill?.email ?? '')
+  const [guests, setGuests] = useState<GuestPerson[]>(defaultGuests)
+  const [song, setSong] = useState(prefill?.existingSong ?? '')
+  const [notes, setNotes] = useState(prefill?.existingNotes ?? '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const maxGuests = prefill?.maxGuests ?? 8
 
   function updateGuest(i: number, field: keyof GuestPerson, val: string) {
     setGuests(g => g.map((x, idx) => idx === i ? { ...x, [field]: val } : x))
   }
-  function addGuest() { if (guests.length < 8) setGuests(g => [...g, { name: '', meal: 'Chicken' }]) }
-  function removeGuest(i: number) { if (guests.length > 1) setGuests(g => g.filter((_, idx) => idx !== i)) }
+  function addGuest() {
+    if (guests.length < maxGuests) setGuests(g => [...g, { name: '', meal: 'Chicken' }])
+  }
+  function removeGuest(i: number) {
+    if (guests.length > 1) setGuests(g => g.filter((_, idx) => idx !== i))
+  }
 
   async function submit() {
     if (!name.trim() || !email.trim()) { setError('Please fill in your name and email.'); return }
     setLoading(true); setError('')
-    const body: RSVPFormData = { attending, name, email, guests: attending === 'yes' ? guests : [], song, notes }
-    const res = await fetch('/api/rsvp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    const body: RSVPFormData = {
+      attending, name, email,
+      guests: attending === 'yes' ? guests : [],
+      song, notes,
+    }
+    const res = await fetch('/api/rsvp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
     if (res.ok) {
       if (attending === 'yes') router.push('/home')
       else router.push('/gate?declined=1')
@@ -41,7 +71,8 @@ export default function RSVPForm() {
 
   return (
     <div className="bg-cream-bright border border-sage-200 rounded-[8px] shadow-md p-8 max-w-[600px] mx-auto mt-6 text-left">
-      {/* Toggle */}
+
+      {/* Attending toggle */}
       <div className="flex border border-sage-200 rounded-[4px] overflow-hidden mb-6">
         {(['yes', 'no'] as const).map((v, i) => (
           <button
@@ -58,15 +89,35 @@ export default function RSVPForm() {
       </div>
 
       <div className="flex flex-col gap-4">
-        <Input label="Lead guest / contact" placeholder="As it appears on your invitation" value={name} onChange={e => setName(e.target.value)} />
-        <Input label="Email" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+        <Input
+          label="Lead guest / contact"
+          placeholder="As it appears on your invitation"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          readOnly={!!prefill?.name}
+          className={prefill?.name ? 'opacity-70 cursor-default' : ''}
+        />
+        <Input
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          readOnly={!!prefill?.email}
+          className={prefill?.email ? 'opacity-70 cursor-default' : ''}
+        />
 
         {attending === 'yes' && (
           <>
             <div>
               <div className="flex items-baseline justify-between mb-3">
-                <span className="font-[var(--font-ui)] text-[12px] tracking-[0.16em] uppercase text-fg3">Who&apos;s coming?</span>
-                <span className="font-[var(--font-body)] italic text-[14px] text-fg3">{guests.length} {guests.length === 1 ? 'guest' : 'guests'}</span>
+                <span className="font-[var(--font-ui)] text-[12px] tracking-[0.16em] uppercase text-fg3">
+                  Who&apos;s coming?
+                </span>
+                <span className="font-[var(--font-body)] italic text-[14px] text-fg3">
+                  {guests.length} {guests.length === 1 ? 'guest' : 'guests'}
+                  {maxGuests < 8 && ` (max ${maxGuests})`}
+                </span>
               </div>
               <div className="flex flex-col gap-2.5">
                 {guests.map((g, i) => (
@@ -92,13 +143,22 @@ export default function RSVPForm() {
                   </div>
                 ))}
               </div>
-              {guests.length < 8 && (
-                <button onClick={addGuest} className="mt-3 bg-none border-none cursor-pointer font-[var(--font-ui)] text-[12px] tracking-[0.16em] uppercase text-gold-700 flex items-center gap-1.5 hover:text-gold-500 transition-colors">
+              {guests.length < maxGuests && (
+                <button
+                  onClick={addGuest}
+                  className="mt-3 bg-none border-none cursor-pointer font-[var(--font-ui)] text-[12px] tracking-[0.16em] uppercase text-gold-700 flex items-center gap-1.5 hover:text-gold-500 transition-colors"
+                >
                   <span className="text-[16px]">+</span> Add a guest
                 </button>
               )}
             </div>
-            <Input label="A song to get you dancing" placeholder="Artist — Title" value={song} onChange={e => setSong(e.target.value)} />
+
+            <Input
+              label="A song to get you dancing"
+              placeholder="Artist — Title"
+              value={song}
+              onChange={e => setSong(e.target.value)}
+            />
           </>
         )}
 

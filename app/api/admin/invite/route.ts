@@ -11,8 +11,9 @@ function isAdmin(req: NextRequest) {
 export async function POST(req: NextRequest) {
   if (!isAdmin(req)) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
-  const { guestId, name, email, personalNote } = await req.json()
+  const { guestId, name, email, personalNote, inviteToken } = await req.json()
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://denbydigital.github.io/ellie-chris-wedding'
+  const rsvpUrl = inviteToken ? `${siteUrl}/gate?invite=${inviteToken}` : `${siteUrl}/gate`
 
   const html = `
 <!DOCTYPE html>
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
           <p style="font-family:Georgia,serif;font-style:italic;font-size:17px;line-height:1.65;color:#DDE1D3;margin:0 0 6px">Dear ${name},</p>
           ${personalNote ? `<p style="font-family:Georgia,serif;font-size:17px;line-height:1.65;color:#DDE1D3;margin:0 0 24px">${personalNote}</p>` : ''}
           <p style="font-family:Georgia,serif;font-size:17px;line-height:1.65;color:#DDE1D3;margin:0 0 24px">We&apos;d be so happy to have you join us on our big day. Please let us know if you can make it &mdash; kindly reply by 1 April 2027.</p>
-          <a href="${siteUrl}" style="display:inline-block;background:#C2A24E;color:#283228;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;text-decoration:none;padding:14px 36px;border-radius:4px">RSVP now</a>
+          <a href="${rsvpUrl}" style="display:inline-block;background:#C2A24E;color:#283228;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;text-decoration:none;padding:14px 36px;border-radius:4px">RSVP now</a>
           <p style="font-family:Georgia,serif;font-style:italic;font-size:14px;color:#C4CAB6;margin:28px 0 0">With love, Ellie &amp; Chris</p>
         </td></tr>
       </table>

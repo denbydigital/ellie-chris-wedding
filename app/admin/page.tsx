@@ -2,6 +2,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Guest } from '@/lib/types'
 
+function inviteUrl(token: string) {
+  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://denbydigital.github.io/ellie-chris-wedding'
+  return `${base}/gate?invite=${token}`
+}
+
 type Tab = 'dashboard' | 'guests' | 'invite' | 'songs' | 'export'
 
 /* ── shared helpers ── */
@@ -178,7 +183,7 @@ export default function AdminPage() {
           {tab === 'guests' && (
             <div className="bg-cream-bright border border-sage-200 rounded-[8px] shadow-sm overflow-hidden">
               <table className="w-full font-[var(--font-ui)] text-[13px] border-collapse">
-                <thead><tr className="bg-sage-100">{['Name','Email','Status','Party','Song','Notes','Responded'].map(h => <th key={h} className="text-left px-5 py-3 font-[var(--font-ui)] text-[11px] tracking-[0.18em] uppercase text-fg3 border-b border-sage-200 whitespace-nowrap">{h}</th>)}</tr></thead>
+                <thead><tr className="bg-sage-100">{['Name','Email','Status','Party','Invite link','Responded'].map(h => <th key={h} className="text-left px-5 py-3 font-[var(--font-ui)] text-[11px] tracking-[0.18em] uppercase text-fg3 border-b border-sage-200 whitespace-nowrap">{h}</th>)}</tr></thead>
                 <tbody>
                   {guests.map(g => (
                     <tr key={g.id} className="border-b border-sage-200 hover:bg-sage-100 transition-colors">
@@ -186,8 +191,21 @@ export default function AdminPage() {
                       <td className="px-5 py-3 text-fg3">{g.email}</td>
                       <td className="px-5 py-3">{badge(g.status)}</td>
                       <td className="px-5 py-3 text-fg3">{g.party_size || '—'}</td>
-                      <td className="px-5 py-3 text-fg3 max-w-[160px] truncate">{g.song || '—'}</td>
-                      <td className="px-5 py-3 text-fg3 max-w-[180px] truncate">{g.notes || '—'}</td>
+                      <td className="px-5 py-3">
+                        {(g as Guest & { invite_token?: string }).invite_token ? (
+                          <button
+                            onClick={() => {
+                              const token = (g as Guest & { invite_token?: string }).invite_token!
+                              navigator.clipboard.writeText(inviteUrl(token))
+                              showToast(`Link copied for ${g.name}`)
+                            }}
+                            className="flex items-center gap-1.5 font-[var(--font-ui)] text-[11px] tracking-[0.12em] uppercase text-gold-700 hover:text-gold-500 transition-colors bg-none border-none cursor-pointer"
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            Copy link
+                          </button>
+                        ) : <span className="text-fg3">—</span>}
+                      </td>
                       <td className="px-5 py-3 text-fg3 whitespace-nowrap">{g.responded_at?.slice(0,10) || '—'}</td>
                     </tr>
                   ))}
@@ -312,11 +330,24 @@ function InviteTab({ pw, guests, onSent }: { pw: string; guests: Guest[]; onSent
                     <div className="font-[var(--font-ui)] text-[13px] font-medium text-fg1">{g.name}</div>
                     <div className="font-[var(--font-ui)] text-[12px] text-fg3">{g.email}</div>
                   </div>
-                  <button
-                    onClick={() => { setName(g.name); setEmail(g.email) }}
-                    className="font-[var(--font-ui)] text-[11px] tracking-[0.14em] uppercase text-gold-700 bg-none border-none cursor-pointer hover:text-gold-500 transition-colors">
-                    Use
-                  </button>
+                  <div className="flex flex-col gap-1 items-end">
+                    <button
+                      onClick={() => { setName(g.name); setEmail(g.email) }}
+                      className="font-[var(--font-ui)] text-[11px] tracking-[0.14em] uppercase text-gold-700 bg-none border-none cursor-pointer hover:text-gold-500 transition-colors">
+                      Fill form
+                    </button>
+                    {(g as Guest & { invite_token?: string }).invite_token && (
+                      <button
+                        onClick={() => {
+                          const token = (g as Guest & { invite_token?: string }).invite_token!
+                          navigator.clipboard.writeText(inviteUrl(token))
+                          onSent(`Personalised link copied for ${g.name}`)
+                        }}
+                        className="font-[var(--font-ui)] text-[11px] tracking-[0.14em] uppercase text-sage-700 bg-none border-none cursor-pointer hover:text-fg1 transition-colors">
+                        Copy link
+                      </button>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
