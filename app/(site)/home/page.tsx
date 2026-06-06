@@ -156,14 +156,6 @@ const TRAVEL = [
   { title: 'End of Evening', icon: <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8Z"/>, body: ['Taxis leave from the main gate at 11:30 pm.', 'Leaving your car overnight is absolutely fine.', 'Please don\'t drink and drive. The hills will still be here in the morning.'] },
 ]
 
-/* ─── Registry data ─── */
-const GIFTS = [
-  { title: 'The Honeymoon Fund', body: 'Three weeks island-hopping in Greece. Help us toward a sunset or two.', meta: 'Contribution', progress: 64 },
-  { title: 'A Tree for the Garden', body: 'We\'re planting an orchard at the new house — claim a tree in your name.', meta: '£45 each', progress: null },
-  { title: 'Dinner at The Inn', body: 'Toward our first anniversary meal back where it all happened.', meta: 'Contribution', progress: 38 },
-  { title: 'Something for the Home', body: 'A small list of bits and pieces we\'d love, from our favourite shops.', meta: 'View list', progress: null },
-]
-
 /* ─── Story data ─── */
 const STORY = [
   { year: '2019', title: 'A rainy queue in Manchester', body: 'We met sheltering under the same café awning on Oxford Road. Chris offered half his umbrella; Ellie offered half her chips. The rest is history.' },
@@ -381,37 +373,26 @@ export default function HomePage() {
       {/* ══ REGISTRY ══ */}
       <section className="px-8 py-24">
         <div className="max-w-[900px] mx-auto">
-          <SectionLabel light eyebrow="Your presence is the present" title="Registry" />
-          <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-5"
-            variants={stagger(0, 0.1)} initial="hidden" whileInView="visible" viewport={VIEWPORT}>
-            {GIFTS.map((g, i) => (
-              <motion.div key={g.title} variants={fadeUp} transition={{ delay: i * 0.08 } as object}
-                className="bg-cream-bright border border-sage-200 rounded-[6px] p-7 shadow-sm flex flex-col">
-                <p className="font-[var(--font-ui)] text-[11px] tracking-[0.2em] uppercase text-gold-700 mb-2">{g.meta}</p>
-                <h3 className="font-[var(--font-display)] font-semibold text-[22px] text-fg1 m-0 mb-2">{g.title}</h3>
-                <p className="font-[var(--font-body)] text-[16px] leading-[1.6] text-fg2 mb-5 flex-1">{g.body}</p>
-                {g.progress != null && (
-                  <div className="mb-4">
-                    <div className="h-1.5 rounded-full bg-sage-200 overflow-hidden mb-1.5">
-                      <motion.div className="h-full bg-gold-500 rounded-full"
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${g.progress}%` }}
-                        viewport={VIEWPORT}
-                        transition={{ duration: 1.0, ease: EASE_OUT_EXPO, delay: i * 0.08 + 0.3 } as object} />
-                    </div>
-                    <p className="font-[var(--font-ui)] text-[11px] tracking-[0.14em] uppercase text-fg3">{g.progress}% toward our goal</p>
-                  </div>
-                )}
-                <Button variant={g.progress != null ? 'gold' : 'outline'} full>
-                  {g.progress != null ? 'Contribute' : 'View'}
-                </Button>
-              </motion.div>
-            ))}
-          </motion.div>
-          <Reveal delay={0.2}>
-            <p className="max-w-[520px] mx-auto mt-10 text-center font-[var(--font-body)] italic text-[16px] text-[var(--on-sage-2)]">
-              A card on the day is always welcome — and always treasured.
-            </p>
+          <SectionLabel light eyebrow="Your presence is the present" title="A Wishing Well" />
+          <Reveal delay={0.1}>
+            <div className="max-w-[600px] mx-auto bg-cream-bright border border-sage-200 rounded-[8px] shadow-md p-10 text-center">
+              <svg className="mx-auto mb-5 text-gold-700" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M3 10l9-6 9 6"/><path d="M5 9v11h14V9"/><path d="M9 20v-5a3 3 0 0 1 6 0v5"/>
+              </svg>
+              <p className="font-[var(--font-body)] text-[19px] leading-[1.7] text-fg2 m-0">
+                Honestly, having you there is the greatest gift of all. We&apos;re lucky enough to
+                already have a home full of everything we need.
+              </p>
+              <div className="my-7"><GoldDivider width={70} color="var(--color-gold-500)" /></div>
+              <p className="font-[var(--font-body)] text-[19px] leading-[1.7] text-fg2 m-0">
+                If you&apos;d like to give a little something, we&apos;ll have a
+                <span className="text-fg1"> wishing well</span> on the day — any contribution
+                will go towards our <span className="text-fg1">honeymoon adventure</span>.
+              </p>
+              <p className="font-[var(--font-body)] italic text-[16px] text-fg3 mt-6">
+                Thank you, from the bottom of our hearts.
+              </p>
+            </div>
           </Reveal>
         </div>
       </section>
