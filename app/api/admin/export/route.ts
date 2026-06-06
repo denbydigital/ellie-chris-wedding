@@ -23,14 +23,32 @@ export async function GET(req: NextRequest) {
 
   if (type === 'guests') {
     filename = 'ellie-chris-guests.csv'
-    rows = [
-      ['Lead Name', 'Email', 'Status', 'Party Size', 'Meal Choices', 'Song Request', 'Notes', 'Responded At'],
-      ...data.map(g => [
-        g.name, g.email, g.status, String(g.party_size),
-        (g.guests_json || []).map((x: { name: string; meal: string }) => `${x.name} (${x.meal})`).join('; '),
-        g.song || '', g.notes || '', g.responded_at || '',
-      ]),
-    ]
+    // One row per individual guest, each with their own meal choice.
+    rows = [['Guest Name', 'Meal', 'Invitation', 'Email', 'Status', 'Song Request', 'Notes', 'Responded At']]
+    for (const g of data) {
+      const people = (g.guests_json || []) as { name: string; meal: string }[]
+      if (g.status === 'attending' && people.length > 0) {
+        people.forEach((p, i) => {
+          rows.push([
+            p.name?.trim() || `Guest ${i + 1}`,
+            p.meal || '',
+            g.name,                 // the invitation / party name
+            g.email,
+            g.status,
+            i === 0 ? (g.song || '') : '',   // song/notes belong to the invite, show once
+            i === 0 ? (g.notes || '') : '',
+            g.responded_at ? g.responded_at.slice(0, 10) : '',
+          ])
+        })
+      } else {
+        // Declined or pending (or attending with no names) — single row
+        rows.push([
+          g.name, '', g.name, g.email, g.status,
+          g.song || '', g.notes || '',
+          g.responded_at ? g.responded_at.slice(0, 10) : '',
+        ])
+      }
+    }
   } else if (type === 'meals') {
     filename = 'ellie-chris-meals.csv'
     const counts: Record<string, number> = { Chicken: 0, Beef: 0, Vegetarian: 0, Vegan: 0, Child: 0 }
