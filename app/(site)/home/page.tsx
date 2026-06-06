@@ -297,20 +297,20 @@ export default function HomePage() {
                   fill className="object-cover" sizes="50vw" />
                 <div className="absolute inset-0 border border-sage-200/40 rounded-[4px] pointer-events-none" />
               </div>
-              {/* Couple photo — styled to blend */}
+              {/* Couple photo */}
               <div className="relative overflow-hidden rounded-[4px] bg-cream-bright border border-sage-200 p-2.5 shadow-sm">
                 <div className="relative overflow-hidden rounded-[2px]" style={{ aspectRatio: '1/1' }}>
                   <Image src="/assets/couple.jpg"
                     alt="Ellie and Chris"
-                    fill className="object-cover object-top"
+                    fill
+                    className="object-cover object-top"
                     sizes="50vw"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    style={{ filter: 'sepia(10%) saturate(88%) brightness(0.96)' }}
                   />
-                  {/* Fallback placeholder shown until photo is added */}
-                  <div className="absolute inset-0 bg-sage-100 flex items-center justify-center">
-                    <p className="font-[var(--font-body)] italic text-[14px] text-fg3 text-center px-4">Ellie &amp; Chris</p>
-                  </div>
                 </div>
+                <p className="font-[var(--font-body)] italic text-[13px] text-fg3 text-center mt-2">
+                  Ellie &amp; Chris, Lake Windermere
+                </p>
               </div>
             </motion.div>
             {/* Timeline */}
