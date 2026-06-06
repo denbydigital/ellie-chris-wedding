@@ -39,6 +39,8 @@ export default function AdminPage() {
   const [guests, setGuests] = useState<Guest[]>([])
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
+  const [loginError, setLoginError] = useState('')
+  const [loggingIn, setLoggingIn] = useState(false)
   const [guestSearch, setGuestSearch] = useState('')
   const [guestFilter, setGuestFilter] = useState<'all'|'attending'|'pending'|'declined'>('all')
   const [showAddGuest, setShowAddGuest] = useState(false)
@@ -48,6 +50,25 @@ export default function AdminPage() {
   const [csvPreview, setCsvPreview] = useState<{name:string;email:string;maxGuests:number}[]>([])
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(''), msg.startsWith('Error') ? 8000 : 3000) }
+
+  async function tryLogin() {
+    if (!pw) { setLoginError('Please enter the password.'); return }
+    setLoggingIn(true); setLoginError('')
+    try {
+      const r = await fetch('/api/admin/guests', { headers: { 'x-admin-password': pw } })
+      if (r.ok) {
+        setAuthed(true)
+      } else if (r.status === 401) {
+        setLoginError('Incorrect password.')
+      } else {
+        setLoginError('Server error — is ADMIN_PASSWORD set in Vercel?')
+      }
+    } catch {
+      setLoginError('Could not reach the server. Please try again.')
+    } finally {
+      setLoggingIn(false)
+    }
+  }
 
   const fetchGuests = useCallback(async () => {
     if (!authed) return
@@ -120,13 +141,17 @@ export default function AdminPage() {
         <h1 className="font-[var(--font-display)] font-medium text-[24px] text-fg1 mb-6">Host Dashboard</h1>
         <input
           type="password" placeholder="Admin password" value={pw}
-          onChange={e => setPw(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && setAuthed(true)}
-          className="w-full font-[var(--font-ui)] text-[14px] text-fg1 bg-cream border border-sage-200 rounded-[4px] px-4 py-3 outline-none focus:border-gold-500 text-center mb-4"
+          onChange={e => { setPw(e.target.value); setLoginError('') }}
+          onKeyDown={e => e.key === 'Enter' && tryLogin()}
+          autoFocus
+          className="w-full font-[var(--font-ui)] text-[14px] text-fg1 bg-cream border border-sage-200 rounded-[4px] px-4 py-3 outline-none focus:border-gold-500 text-center mb-3"
         />
-        <button onClick={() => setAuthed(true)}
-          className="w-full bg-gold-500 text-forest-800 font-[var(--font-ui)] text-[12px] tracking-[0.22em] uppercase py-3.5 rounded-[4px] border-none cursor-pointer hover:bg-gold-700 transition-colors">
-          Enter
+        {loginError && (
+          <p className="font-[var(--font-ui)] text-[12px] text-red-600 mb-3">{loginError}</p>
+        )}
+        <button onClick={tryLogin} disabled={loggingIn}
+          className="w-full bg-gold-500 text-forest-800 font-[var(--font-ui)] text-[12px] tracking-[0.22em] uppercase py-3.5 rounded-[4px] border-none cursor-pointer hover:bg-gold-700 transition-colors disabled:opacity-50">
+          {loggingIn ? 'Checking…' : 'Enter'}
         </button>
       </div>
     </div>
