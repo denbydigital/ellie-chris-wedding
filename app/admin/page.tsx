@@ -31,7 +31,7 @@ function badge(status: string) {
 const NAV: { id: Tab; label: string }[] = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'guests',    label: 'Guest List' },
-  { id: 'invite',    label: 'Send Invites' },
+  { id: 'invite',    label: 'Invite Links' },
   { id: 'songs',     label: 'Playlist' },
   { id: 'export',    label: 'Export' },
 ]
@@ -198,7 +198,7 @@ export default function AdminPage() {
       {/* Main */}
       <div className="flex-1 overflow-auto">
         <div className="bg-cream-bright border-b border-sage-200 h-16 px-9 flex items-center justify-between sticky top-0 z-10">
-          <h1 className="font-[var(--font-display)] font-medium text-[24px] text-fg1 capitalize">{tab === 'dashboard' ? 'Dashboard' : tab === 'invite' ? 'Send Invites' : tab === 'songs' ? 'Playlist Requests' : tab.charAt(0).toUpperCase() + tab.slice(1)}</h1>
+          <h1 className="font-[var(--font-display)] font-medium text-[24px] text-fg1 capitalize">{tab === 'dashboard' ? 'Dashboard' : tab === 'invite' ? 'Invite Links' : tab === 'songs' ? 'Playlist Requests' : tab.charAt(0).toUpperCase() + tab.slice(1)}</h1>
           <button onClick={() => download('guests')}
             className="flex items-center gap-2 bg-gold-500 text-forest-800 font-[var(--font-ui)] text-[11px] tracking-[0.18em] uppercase px-5 py-2.5 rounded-[4px] border-none cursor-pointer hover:bg-gold-700 transition-colors">
             Export CSV
@@ -336,7 +336,7 @@ export default function AdminPage() {
           )}
 
           {/* ─── INVITE ─── */}
-          {tab === 'invite' && <InviteTab pw={pw} guests={guests} onSent={showToast} />}
+          {tab === 'invite' && <InviteTab guests={guests} onSent={showToast} />}
 
           {/* ─── SONGS ─── */}
           {tab === 'songs' && (
@@ -493,95 +493,65 @@ export default function AdminPage() {
 }
 
 /* ─── Invite tab sub-component ─── */
-function InviteTab({ pw, guests, onSent }: { pw: string; guests: Guest[]; onSent: (m: string) => void }) {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [note, setNote] = useState('')
-  const [sending, setSending] = useState(false)
+function InviteTab({ guests, onSent }: { guests: Guest[]; onSent: (m: string) => void }) {
+  const [search, setSearch] = useState('')
 
-  async function send() {
-    if (!name || !email) return
-    setSending(true)
-    // Match the guest record to send their personalised link + mark as sent.
-    const match = guests.find(g => g.email.toLowerCase() === email.trim().toLowerCase())
-    const r = await fetch('/api/admin/invite', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-password': pw },
-      body: JSON.stringify({
-        name, email, personalNote: note,
-        guestId: match?.id,
-        inviteToken: match?.invite_token,
-      }),
-    })
-    setSending(false)
-    if (r.ok) {
-      onSent(`Invite sent to ${name}`); setName(''); setEmail(''); setNote('')
-    } else {
-      const d = await r.json().catch(() => ({}))
-      onSent(`Error: ${d.error || 'Failed to send.'}`)
-    }
+  const withLinks = guests.filter(g => g.invite_token)
+  const filtered = withLinks.filter(g =>
+    !search || g.name.toLowerCase().includes(search.toLowerCase()) || g.email.toLowerCase().includes(search.toLowerCase())
+  )
+
+  function copy(token: string, name: string) {
+    navigator.clipboard.writeText(inviteUrl(token))
+    onSent(`Link copied for ${name}`)
   }
 
-  const pending = guests.filter(g => g.status === 'pending')
-
   return (
-    <div className="grid gap-6" style={{ gridTemplateColumns: '1fr 1fr' }}>
-      <div className="bg-cream-bright border border-sage-200 rounded-[8px] shadow-sm p-7 flex flex-col gap-4">
-        <h2 className="font-[var(--font-display)] font-medium text-[20px] text-fg1 m-0">Compose invite</h2>
-        {[
-          { label: 'To (name)', val: name, set: setName, type: 'text', ph: 'e.g. The Smith Family' },
-          { label: 'Email address', val: email, set: setEmail, type: 'email', ph: 'guest@example.com' },
-        ].map(f => (
-          <label key={f.label} className="block">
-            <span className="block font-[var(--font-ui)] text-[11px] tracking-[0.16em] uppercase text-fg3 mb-1.5">{f.label}</span>
-            <input type={f.type} value={f.val} onChange={e => f.set(e.target.value)} placeholder={f.ph}
-              className="w-full font-[var(--font-ui)] text-[14px] text-fg1 bg-cream border border-sage-200 rounded-[4px] px-4 py-2.5 outline-none focus:border-gold-500 transition-colors" />
-          </label>
-        ))}
-        <label className="block">
-          <span className="block font-[var(--font-ui)] text-[11px] tracking-[0.16em] uppercase text-fg3 mb-1.5">Personal note (optional)</span>
-          <textarea value={note} onChange={e => setNote(e.target.value)} rows={3} placeholder="Can't wait to see you!"
-            className="w-full font-[var(--font-ui)] text-[14px] text-fg1 bg-cream border border-sage-200 rounded-[4px] px-4 py-2.5 outline-none focus:border-gold-500 transition-colors resize-y" />
-        </label>
-        <button onClick={send} disabled={sending || !name || !email}
-          className="bg-gold-500 text-forest-800 font-[var(--font-ui)] text-[12px] tracking-[0.18em] uppercase px-6 py-3 rounded-[4px] border-none cursor-pointer hover:bg-gold-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          {sending ? 'Sending…' : 'Send invite'}
-        </button>
+    <div>
+      <div className="bg-cream-bright border border-sage-200 rounded-[8px] shadow-sm p-6 mb-5">
+        <h2 className="font-[var(--font-display)] font-medium text-[20px] text-fg1 mb-2">Personalised invite links</h2>
+        <p className="font-[var(--font-body)] text-[15px] leading-[1.6] text-fg2">
+          Each guest has a unique link that greets them by name and pre-fills their RSVP.
+          Copy a guest&apos;s link and send it however you like — WhatsApp, text, or your own email.
+          The link is private to that guest, so please don&apos;t post it publicly.
+        </p>
       </div>
 
-      <div className="bg-cream-bright border border-sage-200 rounded-[8px] shadow-sm p-7">
-        <h2 className="font-[var(--font-display)] font-medium text-[20px] text-fg1 mb-4">Pending ({pending.length})</h2>
-        {pending.length === 0
-          ? <p className="font-[var(--font-body)] italic text-fg3 text-[15px]">Everyone has replied!</p>
-          : <ul className="list-none flex flex-col gap-2">
-              {pending.map(g => (
-                <li key={g.id} className="flex justify-between items-center bg-sage-100 px-4 py-2.5 rounded-[4px]">
-                  <div>
-                    <div className="font-[var(--font-ui)] text-[13px] font-medium text-fg1">{g.name}</div>
-                    <div className="font-[var(--font-ui)] text-[12px] text-fg3">{g.email}</div>
-                  </div>
-                  <div className="flex flex-col gap-1 items-end">
-                    <button
-                      onClick={() => { setName(g.name); setEmail(g.email) }}
-                      className="font-[var(--font-ui)] text-[11px] tracking-[0.14em] uppercase text-gold-700 bg-none border-none cursor-pointer hover:text-gold-500 transition-colors">
-                      Fill form
-                    </button>
-                    {g.invite_token && (
-                      <button
-                        onClick={() => {
-                          const token = g.invite_token!
-                          navigator.clipboard.writeText(inviteUrl(token))
-                          onSent(`Personalised link copied for ${g.name}`)
-                        }}
-                        className="font-[var(--font-ui)] text-[11px] tracking-[0.14em] uppercase text-sage-700 bg-none border-none cursor-pointer hover:text-fg1 transition-colors">
-                        Copy link
-                      </button>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-        }
+      <input
+        className="w-full max-w-[360px] font-[var(--font-ui)] text-[13px] text-fg1 bg-cream-bright border border-sage-200 rounded-[4px] px-4 py-2.5 outline-none focus:border-gold-500 transition-colors mb-4"
+        placeholder="Search by name or email…"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+      />
+
+      <div className="bg-cream-bright border border-sage-200 rounded-[8px] shadow-sm overflow-hidden">
+        <table className="w-full font-[var(--font-ui)] text-[13px] border-collapse">
+          <thead><tr className="bg-sage-100">{['Name','Email','Status','Sent','Invite link'].map(h => <th key={h} className="text-left px-5 py-3 font-[var(--font-ui)] text-[11px] tracking-[0.18em] uppercase text-fg3 border-b border-sage-200 whitespace-nowrap">{h}</th>)}</tr></thead>
+          <tbody>
+            {filtered.map(g => (
+              <tr key={g.id} className="border-b border-sage-200 hover:bg-sage-100 transition-colors">
+                <td className="px-5 py-3 font-medium text-fg1 whitespace-nowrap">{g.name}</td>
+                <td className="px-5 py-3 text-fg3">{g.email}</td>
+                <td className="px-5 py-3">{badge(g.status)}</td>
+                <td className="px-5 py-3 text-fg3 whitespace-nowrap">{g.invite_sent_at ? g.invite_sent_at.slice(0,10) : '—'}</td>
+                <td className="px-5 py-3">
+                  <button
+                    onClick={() => copy(g.invite_token!, g.name)}
+                    className="flex items-center gap-1.5 font-[var(--font-ui)] text-[11px] tracking-[0.12em] uppercase text-gold-700 hover:text-gold-500 transition-colors bg-none border-none cursor-pointer"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copy link
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr><td colSpan={5} className="px-5 py-10 text-center font-[var(--font-body)] italic text-fg3">
+                {withLinks.length === 0 ? 'No guests yet — add some in the Guest List tab.' : 'No matches.'}
+              </td></tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   )
