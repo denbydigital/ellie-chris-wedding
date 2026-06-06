@@ -3,7 +3,11 @@ import { useState, useEffect, useCallback } from 'react'
 import type { Guest } from '@/lib/types'
 
 function inviteUrl(token: string) {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://denbydigital.github.io/ellie-chris-wedding'
+  // Always use the current origin (the live Vercel URL or custom domain),
+  // so links never point at a stale hardcoded host.
+  const base = typeof window !== 'undefined'
+    ? window.location.origin
+    : (process.env.NEXT_PUBLIC_SITE_URL || '')
   return `${base}/gate?invite=${token}`
 }
 

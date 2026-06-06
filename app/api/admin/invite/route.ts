@@ -12,7 +12,8 @@ export async function POST(req: NextRequest) {
   if (!isAdmin(req)) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
   const { guestId, name, email, personalNote, inviteToken } = await req.json()
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://denbydigital.github.io/ellie-chris-wedding'
+  // Prefer the configured site URL; otherwise derive from the request origin.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin
   const rsvpUrl = inviteToken ? `${siteUrl}/gate?invite=${inviteToken}` : `${siteUrl}/gate`
 
   const html = `
