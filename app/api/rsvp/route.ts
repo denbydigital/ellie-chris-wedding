@@ -32,5 +32,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to save your reply. Please try again.' }, { status: 500 })
   }
 
-  return NextResponse.json({ ok: true })
+  const res = NextResponse.json({ ok: true })
+
+  // Unlock the content pages only for those who are coming.
+  if (status === 'attending') {
+    res.cookies.set('ec-access', 'yes', {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+      sameSite: 'lax',
+    })
+  } else {
+    // If a previously-attending guest changes to declined, lock them back out.
+    res.cookies.set('ec-access', '', { path: '/', maxAge: 0 })
+  }
+
+  return res
 }
