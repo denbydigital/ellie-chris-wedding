@@ -258,7 +258,7 @@ export default function HomePage() {
       </section>
 
       {/* ══ FULL-BLEED PHOTO — ceremony arch through the trees ══ */}
-      <PhotoBreak src="/assets/venue/anna-4.jpg" alt="The ceremony arch at Hobbit Hill, framed by trees" height={560} overlay={0.08} />
+      <PhotoBreak src="/assets/venue/anna-1.jpg" alt="Hobbit Hill venue and cabins" height={560} overlay={0.08} />
 
       {/* ══ OUR STORY ══ */}
       <section className="px-8 py-24">
@@ -446,7 +446,7 @@ export default function HomePage() {
       </section>
 
       {/* ══ FULL-BLEED PHOTO — venue + cabins exterior ══ */}
-      <PhotoBreak src="/assets/venue/anna-1.jpg" alt="Hobbit Hill venue and cabins" height={500} overlay={0.08} />
+      <PhotoBreak src="/assets/venue/anna-4.jpg" alt="The ceremony arch at Hobbit Hill, framed by trees" height={500} overlay={0.08} />
 
       {/* ══ FAQ ══ */}
       <section className="px-8 py-24">
