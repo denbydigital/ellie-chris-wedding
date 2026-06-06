@@ -446,7 +446,25 @@ export default function HomePage() {
       </section>
 
       {/* ══ FULL-BLEED PHOTO — venue + cabins exterior ══ */}
-      <PhotoBreak src="/assets/venue/anna-4.jpg" alt="The ceremony arch at Hobbit Hill, framed by trees" height={500} overlay={0.08} />
+      {/* ══ HOBBIT WATERCOLOUR ══ */}
+      <section className="px-8 py-20">
+        <Reveal>
+          <figure className="max-w-[560px] mx-auto m-0">
+            <div className="bg-cream-bright border border-sage-200 p-3 shadow-md rounded-[6px]">
+              <Image
+                src="/assets/venue/hobbit.jpg"
+                alt="A hobbit door, an unexpected journey begins"
+                width={573}
+                height={343}
+                className="w-full h-auto rounded-[3px]"
+              />
+            </div>
+            <figcaption className="text-center mt-4 font-[var(--font-script)] text-[26px] leading-none text-gold-300">
+              An unexpected journey begins
+            </figcaption>
+          </figure>
+        </Reveal>
+      </section>
 
       {/* ══ FAQ ══ */}
       <section className="px-8 py-24">
