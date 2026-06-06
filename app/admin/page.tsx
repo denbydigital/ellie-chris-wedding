@@ -47,7 +47,7 @@ export default function AdminPage() {
   const [csvText, setCsvText] = useState('')
   const [csvPreview, setCsvPreview] = useState<{name:string;email:string;maxGuests:number}[]>([])
 
-  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(''), 3000) }
+  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(''), msg.startsWith('Error') ? 8000 : 3000) }
 
   const fetchGuests = useCallback(async () => {
     if (!authed) return
@@ -71,7 +71,10 @@ export default function AdminPage() {
       setAddForm({ name: '', email: '', maxGuests: '2' })
       setShowAddGuest(false)
       fetchGuests()
-    } else { showToast('Error adding guest.') }
+    } else {
+      const d = await r.json().catch(() => ({}))
+      showToast(d.error ? `Error: ${d.error}` : 'Error adding guest.')
+    }
   }
 
   function parseCsv(text: string) {
