@@ -163,6 +163,8 @@ export default function AdminPage() {
   const declined  = guests.filter(g => g.status === 'declined')
   const pending   = guests.filter(g => g.status === 'pending')
   const totalGuests = attending.reduce((s, g) => s + g.party_size, 0)
+  const declinedGuests = declined.reduce((s, g) => s + (g.max_guests ?? 1), 0)
+  const maxHeadcount = guests.reduce((s, g) => s + (g.max_guests ?? 1), 0)
   const meals = attending.flatMap(g => g.guests_json)
   const mealCounts = { Chicken: 0, Beef: 0, Vegetarian: 0, Vegan: 0, Child: 0 } as Record<string, number>
   meals.forEach(m => { if (mealCounts[m.meal] !== undefined) mealCounts[m.meal]++ })
@@ -211,10 +213,10 @@ export default function AdminPage() {
             <div>
               <div className="grid grid-cols-4 gap-4 mb-8">
                 {[
-                  { label: 'Accepting', num: attending.length, sub: `${totalGuests} guests`, hi: true },
-                  { label: 'Declined',  num: declined.length,  sub: 'invitations' },
-                  { label: 'Pending',   num: pending.length,   sub: 'awaiting reply' },
-                  { label: 'Total',     num: guests.length,    sub: 'invitations' },
+                  { label: 'Guests attending', num: totalGuests, sub: `${attending.length} of ${guests.length} ${guests.length === 1 ? 'invite' : 'invites'} accepted`, hi: true },
+                  { label: 'Declined',  num: declined.length,  sub: `${declinedGuests} ${declinedGuests === 1 ? 'guest' : 'guests'}` },
+                  { label: 'Awaiting reply', num: pending.length, sub: 'no reply yet' },
+                  { label: 'Total invited', num: guests.length, sub: `${maxHeadcount} guests max` },
                 ].map(s => (
                   <div key={s.label} className={`bg-cream-bright border rounded-[8px] shadow-sm p-6 ${s.hi ? 'border-gold-300' : 'border-sage-200'}`}>
                     <p className="font-[var(--font-ui)] text-[11px] tracking-[0.2em] uppercase text-fg3 mb-2">{s.label}</p>
