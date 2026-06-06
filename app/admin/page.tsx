@@ -502,14 +502,24 @@ function InviteTab({ pw, guests, onSent }: { pw: string; guests: Guest[]; onSent
   async function send() {
     if (!name || !email) return
     setSending(true)
+    // Match the guest record to send their personalised link + mark as sent.
+    const match = guests.find(g => g.email.toLowerCase() === email.trim().toLowerCase())
     const r = await fetch('/api/admin/invite', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-admin-password': pw },
-      body: JSON.stringify({ name, email, personalNote: note }),
+      body: JSON.stringify({
+        name, email, personalNote: note,
+        guestId: match?.id,
+        inviteToken: match?.invite_token,
+      }),
     })
     setSending(false)
-    if (r.ok) { onSent(`Invite sent to ${name}`); setName(''); setEmail(''); setNote('') }
-    else onSent('Failed to send — check Resend API key.')
+    if (r.ok) {
+      onSent(`Invite sent to ${name}`); setName(''); setEmail(''); setNote('')
+    } else {
+      const d = await r.json().catch(() => ({}))
+      onSent(`Error: ${d.error || 'Failed to send.'}`)
+    }
   }
 
   const pending = guests.filter(g => g.status === 'pending')

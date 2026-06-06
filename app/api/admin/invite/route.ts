@@ -46,22 +46,37 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`
 
+  // Clear, early failure if email isn't configured at all.
+  if (!process.env.RESEND_API_KEY) {
+    return NextResponse.json(
+      { error: 'Email isn\'t set up yet (no RESEND_API_KEY). Use “Copy link” to send invites yourself.' },
+      { status: 500 },
+    )
+  }
+
   try {
-    await resend.emails.send({
+    // The Resend SDK returns { data, error } — it does NOT throw on API errors
+    // (e.g. unverified sending domain), so we must check error explicitly.
+    const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'hello@ellieandchris.co.uk',
       to: email,
       subject: 'You\'re invited — Ellie & Chris, 10 July 2027',
       html,
     })
 
-    // Mark invite as sent in DB
+    if (error) {
+      console.error('Resend error:', error)
+      return NextResponse.json({ error: error.message || 'Resend rejected the email.' }, { status: 500 })
+    }
+
+    // Mark invite as sent in DB only on a real success
     if (guestId) {
       await supabaseAdmin().from('guests').update({ invite_sent_at: new Date().toISOString() }).eq('id', guestId)
     }
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, id: data?.id })
   } catch (err) {
-    console.error('Email send error:', err)
-    return NextResponse.json({ error: 'Failed to send email.' }, { status: 500 })
+    console.error('Email send exception:', err)
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Failed to send email.' }, { status: 500 })
   }
 }
