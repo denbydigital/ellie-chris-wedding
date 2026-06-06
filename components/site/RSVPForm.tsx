@@ -63,7 +63,13 @@ export default function RSVPForm({ prefill }: { prefill?: Prefill }) {
       if (attending === 'yes') router.push('/home')
       else router.push('/gate?declined=1')
     } else {
-      const d = await res.json()
+      const d = await res.json().catch(() => ({}))
+      if (res.status === 409 || d.error === 'alreadyResponded') {
+        // RSVP is final — send them where their existing reply belongs.
+        if (d.status === 'attending') router.push('/home')
+        else router.push('/gate?declined=1')
+        return
+      }
       setError(d.error || 'Something went wrong. Please try again.')
       setLoading(false)
     }

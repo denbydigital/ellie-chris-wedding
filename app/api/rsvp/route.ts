@@ -12,13 +12,28 @@ export async function POST(req: NextRequest) {
 
   const db = supabaseAdmin()
   const status = attending === 'yes' ? 'attending' : 'declined'
+  const cleanEmail = email.trim().toLowerCase()
 
-  // Upsert by email so guests can update their reply
+  // RSVP is final — if this guest has already responded, don't allow a change.
+  const { data: existing } = await db
+    .from('guests')
+    .select('status, responded_at')
+    .eq('email', cleanEmail)
+    .maybeSingle()
+
+  if (existing && existing.status !== 'pending' && existing.responded_at) {
+    return NextResponse.json(
+      { error: 'alreadyResponded', status: existing.status },
+      { status: 409 },
+    )
+  }
+
+  // Upsert by email (first response only)
   const { error } = await db
     .from('guests')
     .upsert({
       name: name.trim(),
-      email: email.trim().toLowerCase(),
+      email: cleanEmail,
       status,
       party_size: attending === 'yes' ? guests.length : 0,
       guests_json: attending === 'yes' ? guests : [],

@@ -1,13 +1,7 @@
-import SectionHeader from '@/components/site/SectionHeader'
-import RSVPForm from '@/components/site/RSVPForm'
+import { redirect } from 'next/navigation'
 
+// RSVP is final and submitted via the gate; this route just sends
+// attending guests (the only ones who can reach it) into the site.
 export default function RSVPPage() {
-  return (
-    <div>
-      <SectionHeader eyebrow="You're on the list" title="Update your reply" intro="If anything changes — your party size, a dietary need — update your reply below." />
-      <section className="bg-cream px-8 py-16 pb-24">
-        <RSVPForm />
-      </section>
-    </div>
-  )
+  redirect('/home')
 }

@@ -4,7 +4,6 @@ import Image from 'next/image'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import GoldDivider from '@/components/ui/GoldDivider'
 import Button from '@/components/ui/Button'
-import RSVPForm from '@/components/site/RSVPForm'
 import { fadeUp, riseUp, scaleIn, slideLeft, stagger, VIEWPORT, EASE_OUT_EXPO } from '@/lib/animation'
 
 /* ─── Reveal wrapper ─── */
@@ -479,15 +478,23 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══ UPDATE RSVP ══ */}
-      <section className="bg-sage-100 px-8 py-20 pb-28">
-        <div className="max-w-[680px] mx-auto text-center mb-10">
-          <SectionLabel eyebrow="Need to make a change?" title="Update your reply" />
-          <p className="font-[var(--font-body)] text-[17px] leading-[1.65] text-fg2 -mt-4">
-            If your party size or dietary needs change, update below.
-          </p>
+      {/* ══ RSVP CONFIRMED ══ */}
+      <section className="bg-sage-100 px-8 py-24 pb-28">
+        <div className="max-w-[600px] mx-auto text-center">
+          <SectionLabel eyebrow="You're on the list" title="See you there" />
+          <Reveal delay={0.1}>
+            <p className="font-[var(--font-body)] text-[18px] leading-[1.75] text-fg2">
+              Your reply is in and we couldn&apos;t be happier. If anything changes —
+              a dietary need, a party detail — drop us a line and we&apos;ll sort it.
+            </p>
+            <p className="font-[var(--font-body)] italic text-[16px] text-fg3 mt-6">
+              We can&apos;t wait to celebrate with you at Hobbit Hill.
+            </p>
+            <div className="mt-8">
+              <Button variant="gold">Email Ellie &amp; Chris</Button>
+            </div>
+          </Reveal>
         </div>
-        <RSVPForm />
       </section>
 
     </div>

@@ -295,7 +295,7 @@ export default function AdminPage() {
               {/* Table */}
               <div className="bg-cream-bright border border-sage-200 rounded-[8px] shadow-sm overflow-hidden">
                 <table className="w-full font-[var(--font-ui)] text-[13px] border-collapse">
-                  <thead><tr className="bg-sage-100">{['Name','Email','Status','Max guests','Invite link','Responded'].map(h => <th key={h} className="text-left px-5 py-3 font-[var(--font-ui)] text-[11px] tracking-[0.18em] uppercase text-fg3 border-b border-sage-200 whitespace-nowrap">{h}</th>)}</tr></thead>
+                  <thead><tr className="bg-sage-100">{['Name','Email','Status','Coming','Responded','Invite link'].map(h => <th key={h} className="text-left px-5 py-3 font-[var(--font-ui)] text-[11px] tracking-[0.18em] uppercase text-fg3 border-b border-sage-200 whitespace-nowrap">{h}</th>)}</tr></thead>
                   <tbody>
                     {guests
                       .filter(g => guestFilter === 'all' || g.status === guestFilter)
@@ -305,7 +305,8 @@ export default function AdminPage() {
                         <td className="px-5 py-3 font-medium text-fg1 whitespace-nowrap">{g.name}</td>
                         <td className="px-5 py-3 text-fg3">{g.email}</td>
                         <td className="px-5 py-3">{badge(g.status)}</td>
-                        <td className="px-5 py-3 text-fg3 text-center">{g.max_guests ?? 2}</td>
+                        <td className="px-5 py-3 text-fg2 text-center">{g.status === 'attending' ? g.party_size : '—'}</td>
+                        <td className="px-5 py-3 text-fg3 whitespace-nowrap">{g.responded_at?.slice(0,10) || '—'}</td>
                         <td className="px-5 py-3">
                           {g.invite_token ? (
                             <button
@@ -321,7 +322,6 @@ export default function AdminPage() {
                             </button>
                           ) : <span className="text-fg3">—</span>}
                         </td>
-                        <td className="px-5 py-3 text-fg3 whitespace-nowrap">{g.responded_at?.slice(0,10) || '—'}</td>
                       </tr>
                     ))}
                     {guests.length === 0 && (
