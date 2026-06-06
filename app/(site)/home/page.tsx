@@ -3,7 +3,6 @@ import { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import GoldDivider from '@/components/ui/GoldDivider'
-import Button from '@/components/ui/Button'
 import FloralBackdrop from '@/components/ui/FloralBackdrop'
 import { fadeUp, riseUp, scaleIn, slideLeft, stagger, VIEWPORT, EASE_OUT_EXPO } from '@/lib/animation'
 
@@ -454,12 +453,6 @@ export default function HomePage() {
         <div className="max-w-[760px] mx-auto">
           <SectionLabel light eyebrow="Good to know" title="Questions" />
           <FaqAccordion />
-          <Reveal delay={0.3}>
-            <div className="text-center mt-10">
-              <p className="font-[var(--font-body)] italic text-[16px] text-[var(--on-sage-2)] mb-4">Still curious about something?</p>
-              <Button variant="gold">Email Ellie &amp; Chris</Button>
-            </div>
-          </Reveal>
         </div>
       </section>
 
@@ -475,9 +468,6 @@ export default function HomePage() {
             <p className="font-[var(--font-body)] italic text-[16px] text-[var(--on-sage-3)] mt-6">
               We can&apos;t wait to celebrate with you at Hobbit Hill.
             </p>
-            <div className="mt-8">
-              <Button variant="gold">Email Ellie &amp; Chris</Button>
-            </div>
           </Reveal>
         </div>
       </section>
