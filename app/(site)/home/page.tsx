@@ -192,7 +192,7 @@ const STORY = [
 ═══════════════════════════════════════════════════════ */
 export default function HomePage() {
   return (
-    <div className="bg-cream">
+    <div className="bg-sage-100">
 
       {/* ══ HERO — full-bleed photo with invitation overlay ══ */}
       <section className="relative w-full overflow-hidden" style={{ height: '100svh', minHeight: 640 }}>
@@ -258,7 +258,7 @@ export default function HomePage() {
       </section>
 
       {/* ══ WELCOME + COUNTDOWN ══ */}
-      <section className="bg-cream py-24 px-8">
+      <section className="bg-sage-100 py-24 px-8">
         <div className="max-w-[680px] mx-auto text-center">
           <Reveal variants={riseUp}>
             <h2 className="font-[var(--font-display)] font-medium text-fg1 mb-6"
@@ -282,7 +282,7 @@ export default function HomePage() {
       <PhotoBreak src="/assets/venue/anna-9.jpg" alt="The barn at Hobbit Hill" height={560} overlay={0.08} />
 
       {/* ══ OUR STORY ══ */}
-      <section className="bg-cream px-8 py-24">
+      <section className="bg-sage-100 px-8 py-24">
         <div className="max-w-[1000px] mx-auto">
           <SectionLabel eyebrow="How we got here" title="Our Story" />
           <div className="grid gap-14 items-start grid-cols-1 md:grid-cols-2">
@@ -323,7 +323,7 @@ export default function HomePage() {
                     style={{ paddingBottom: i < STORY.length - 1 ? 44 : 0 }}
                     variants={slideLeft} initial="hidden" whileInView="visible" viewport={VIEWPORT}
                     transition={{ delay: i * 0.12 } as object}>
-                    <motion.span className="absolute left-0 top-1.5 w-[15px] h-[15px] rounded-full bg-cream border-2 border-gold-500"
+                    <motion.span className="absolute left-0 top-1.5 w-[15px] h-[15px] rounded-full bg-sage-100 border-2 border-gold-500"
                       initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={VIEWPORT}
                       transition={{ delay: i * 0.12 + 0.1, duration: 0.4, ease: EASE_OUT_EXPO } as object} />
                     <p className="font-[var(--font-ui)] text-[12px] tracking-[0.24em] uppercase text-gold-700 mb-1.5">{s.year}</p>
@@ -341,7 +341,7 @@ export default function HomePage() {
       <PhotoBreak src="/assets/venue/anna-8.jpg" alt="The Ribble Valley from Hobbit Hill" height={500} overlay={0.1} />
 
       {/* ══ THE DAY ══ */}
-      <section className="bg-cream px-8 py-24">
+      <section className="bg-sage-100 px-8 py-24">
         <div className="max-w-[760px] mx-auto">
           <SectionLabel eyebrow="Saturday, 10 July 2027" title="The Day" />
           <motion.div className="flex flex-col gap-3"
@@ -376,7 +376,7 @@ export default function HomePage() {
       <PhotoBreak src="/assets/venue/interior.jpg" alt="The wedding breakfast room at Hobbit Hill" height={480} overlay={0.04} />
 
       {/* ══ TRAVEL ══ */}
-      <section className="bg-cream px-8 py-24">
+      <section className="bg-sage-100 px-8 py-24">
         <div className="max-w-[900px] mx-auto">
           <SectionLabel eyebrow="Getting here" title="Travel & Stay" />
           <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-5"
@@ -437,7 +437,7 @@ export default function HomePage() {
       </section>
 
       {/* ══ GALLERY — real venue photos ══ */}
-      <section className="bg-cream px-8 py-24">
+      <section className="bg-sage-100 px-8 py-24">
         <div className="max-w-[1100px] mx-auto">
           <SectionLabel eyebrow="Hobbit Hill" title="The Venue" />
           <motion.div
@@ -465,7 +465,7 @@ export default function HomePage() {
       <PhotoBreak src="/assets/venue/anna-1.jpg" alt="Hobbit Hill venue and cabins" height={500} overlay={0.08} />
 
       {/* ══ FAQ ══ */}
-      <section className="bg-cream px-8 py-24">
+      <section className="bg-sage-100 px-8 py-24">
         <div className="max-w-[760px] mx-auto">
           <SectionLabel eyebrow="Good to know" title="Questions" />
           <FaqAccordion />

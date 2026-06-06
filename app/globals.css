@@ -53,7 +53,7 @@
 
 body {
   font-family: var(--font-body);
-  background: theme(colors.cream);
+  background: theme(colors.sage-100);
   color: theme(colors.fg2);
   -webkit-font-smoothing: antialiased;
 }
