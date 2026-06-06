@@ -73,12 +73,6 @@ export default async function GatePage({
           <p className="font-[var(--font-ui)] text-[13px] tracking-[0.28em] uppercase text-[var(--on-sage-2)]">
             Hobbit Hill &middot; Clitheroe
           </p>
-          {!showDeclined && (
-            <p className="font-[var(--font-script)] text-[30px] leading-none text-[var(--on-sage-1)] mt-5">
-              An unexpected journey begins
-            </p>
-          )}
-
           {/* Declined confirmation — gracious dead-end */}
           {showDeclined && (
             <div className="mt-7 pt-6 border-t border-[var(--line-on-sage)]">
