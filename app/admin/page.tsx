@@ -39,6 +39,13 @@ export default function AdminPage() {
   const [guests, setGuests] = useState<Guest[]>([])
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
+  const [guestSearch, setGuestSearch] = useState('')
+  const [guestFilter, setGuestFilter] = useState<'all'|'attending'|'pending'|'declined'>('all')
+  const [showAddGuest, setShowAddGuest] = useState(false)
+  const [showCsvImport, setShowCsvImport] = useState(false)
+  const [addForm, setAddForm] = useState({ name: '', email: '', maxGuests: '2' })
+  const [csvText, setCsvText] = useState('')
+  const [csvPreview, setCsvPreview] = useState<{name:string;email:string;maxGuests:number}[]>([])
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(''), 3000) }
 
@@ -51,6 +58,47 @@ export default function AdminPage() {
   }, [authed, pw])
 
   useEffect(() => { if (authed) fetchGuests() }, [authed, fetchGuests])
+
+  async function addGuest() {
+    if (!addForm.name.trim() || !addForm.email.trim()) { showToast('Name and email required.'); return }
+    const r = await fetch('/api/admin/guests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': pw },
+      body: JSON.stringify({ name: addForm.name.trim(), email: addForm.email.trim().toLowerCase(), max_guests: parseInt(addForm.maxGuests) || 2, status: 'pending' }),
+    })
+    if (r.ok) {
+      showToast(`${addForm.name} added!`)
+      setAddForm({ name: '', email: '', maxGuests: '2' })
+      setShowAddGuest(false)
+      fetchGuests()
+    } else { showToast('Error adding guest.') }
+  }
+
+  function parseCsv(text: string) {
+    const lines = text.trim().split('\n').filter(Boolean)
+    // Skip header row if it looks like one
+    const start = lines[0]?.toLowerCase().includes('name') ? 1 : 0
+    const rows = lines.slice(start).map(l => {
+      const cols = l.split(',').map(c => c.trim().replace(/^["']|["']$/g, ''))
+      return { name: cols[0] || '', email: cols[1] || '', maxGuests: parseInt(cols[2]) || 2 }
+    }).filter(r => r.name && r.email)
+    setCsvPreview(rows)
+  }
+
+  async function importCsv() {
+    let ok = 0, fail = 0
+    for (const row of csvPreview) {
+      const r = await fetch('/api/admin/guests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-password': pw },
+        body: JSON.stringify({ name: row.name, email: row.email.toLowerCase(), max_guests: row.maxGuests, status: 'pending' }),
+      })
+      if (r.ok) ok++; else fail++
+    }
+    showToast(`Imported ${ok} guests${fail ? ` (${fail} failed — duplicate emails?)` : ''}.`)
+    setCsvText(''); setCsvPreview([]); setShowCsvImport(false)
+    fetchGuests()
+  }
 
   async function download(type: string) {
     const r = await fetch(`/api/admin/export?type=${type}`, { headers: { 'x-admin-password': pw } })
@@ -181,36 +229,77 @@ export default function AdminPage() {
 
           {/* ─── GUESTS ─── */}
           {tab === 'guests' && (
-            <div className="bg-cream-bright border border-sage-200 rounded-[8px] shadow-sm overflow-hidden">
-              <table className="w-full font-[var(--font-ui)] text-[13px] border-collapse">
-                <thead><tr className="bg-sage-100">{['Name','Email','Status','Party','Invite link','Responded'].map(h => <th key={h} className="text-left px-5 py-3 font-[var(--font-ui)] text-[11px] tracking-[0.18em] uppercase text-fg3 border-b border-sage-200 whitespace-nowrap">{h}</th>)}</tr></thead>
-                <tbody>
-                  {guests.map(g => (
-                    <tr key={g.id} className="border-b border-sage-200 hover:bg-sage-100 transition-colors">
-                      <td className="px-5 py-3 font-medium text-fg1 whitespace-nowrap">{g.name}</td>
-                      <td className="px-5 py-3 text-fg3">{g.email}</td>
-                      <td className="px-5 py-3">{badge(g.status)}</td>
-                      <td className="px-5 py-3 text-fg3">{g.party_size || '—'}</td>
-                      <td className="px-5 py-3">
-                        {(g as Guest & { invite_token?: string }).invite_token ? (
-                          <button
-                            onClick={() => {
-                              const token = (g as Guest & { invite_token?: string }).invite_token!
-                              navigator.clipboard.writeText(inviteUrl(token))
-                              showToast(`Link copied for ${g.name}`)
-                            }}
-                            className="flex items-center gap-1.5 font-[var(--font-ui)] text-[11px] tracking-[0.12em] uppercase text-gold-700 hover:text-gold-500 transition-colors bg-none border-none cursor-pointer"
-                          >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                            Copy link
-                          </button>
-                        ) : <span className="text-fg3">—</span>}
-                      </td>
-                      <td className="px-5 py-3 text-fg3 whitespace-nowrap">{g.responded_at?.slice(0,10) || '—'}</td>
-                    </tr>
+            <div>
+              {/* Toolbar */}
+              <div className="flex gap-3 mb-4 flex-wrap items-center">
+                <input
+                  className="flex-1 min-w-[200px] font-[var(--font-ui)] text-[13px] text-fg1 bg-cream-bright border border-sage-200 rounded-[4px] px-4 py-2.5 outline-none focus:border-gold-500 transition-colors"
+                  placeholder="Search by name or email…"
+                  value={guestSearch}
+                  onChange={e => setGuestSearch(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  {(['all','attending','pending','declined'] as const).map(s => (
+                    <button key={s} onClick={() => setGuestFilter(s)}
+                      className={[
+                        'font-[var(--font-ui)] text-[11px] tracking-[0.14em] uppercase px-3 py-2 rounded-[4px] border transition-colors cursor-pointer',
+                        guestFilter === s
+                          ? 'bg-forest-800 text-cream border-forest-800'
+                          : 'bg-transparent text-fg2 border-sage-200 hover:bg-sage-100',
+                      ].join(' ')}>
+                      {s}
+                    </button>
                   ))}
-                </tbody>
-              </table>
+                </div>
+                <button onClick={() => setShowAddGuest(true)}
+                  className="bg-gold-500 text-forest-800 font-[var(--font-ui)] text-[12px] tracking-[0.16em] uppercase px-5 py-2.5 rounded-[4px] border-none cursor-pointer hover:bg-gold-700 transition-colors whitespace-nowrap flex items-center gap-2">
+                  <span className="text-[16px] leading-none">+</span> Add guest
+                </button>
+                <button onClick={() => setShowCsvImport(true)}
+                  className="bg-transparent text-fg1 font-[var(--font-ui)] text-[12px] tracking-[0.16em] uppercase px-5 py-2.5 rounded-[4px] border border-sage-300 cursor-pointer hover:bg-sage-100 transition-colors whitespace-nowrap flex items-center gap-2">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Import CSV
+                </button>
+              </div>
+
+              {/* Table */}
+              <div className="bg-cream-bright border border-sage-200 rounded-[8px] shadow-sm overflow-hidden">
+                <table className="w-full font-[var(--font-ui)] text-[13px] border-collapse">
+                  <thead><tr className="bg-sage-100">{['Name','Email','Status','Max guests','Invite link','Responded'].map(h => <th key={h} className="text-left px-5 py-3 font-[var(--font-ui)] text-[11px] tracking-[0.18em] uppercase text-fg3 border-b border-sage-200 whitespace-nowrap">{h}</th>)}</tr></thead>
+                  <tbody>
+                    {guests
+                      .filter(g => guestFilter === 'all' || g.status === guestFilter)
+                      .filter(g => !guestSearch || g.name.toLowerCase().includes(guestSearch.toLowerCase()) || g.email.toLowerCase().includes(guestSearch.toLowerCase()))
+                      .map(g => (
+                      <tr key={g.id} className="border-b border-sage-200 hover:bg-sage-100 transition-colors">
+                        <td className="px-5 py-3 font-medium text-fg1 whitespace-nowrap">{g.name}</td>
+                        <td className="px-5 py-3 text-fg3">{g.email}</td>
+                        <td className="px-5 py-3">{badge(g.status)}</td>
+                        <td className="px-5 py-3 text-fg3 text-center">{(g as Guest & { max_guests?: number }).max_guests ?? 2}</td>
+                        <td className="px-5 py-3">
+                          {(g as Guest & { invite_token?: string }).invite_token ? (
+                            <button
+                              onClick={() => {
+                                const token = (g as Guest & { invite_token?: string }).invite_token!
+                                navigator.clipboard.writeText(inviteUrl(token))
+                                showToast(`Link copied for ${g.name}`)
+                              }}
+                              className="flex items-center gap-1.5 font-[var(--font-ui)] text-[11px] tracking-[0.12em] uppercase text-gold-700 hover:text-gold-500 transition-colors bg-none border-none cursor-pointer"
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                              Copy link
+                            </button>
+                          ) : <span className="text-fg3">—</span>}
+                        </td>
+                        <td className="px-5 py-3 text-fg3 whitespace-nowrap">{g.responded_at?.slice(0,10) || '—'}</td>
+                      </tr>
+                    ))}
+                    {guests.length === 0 && (
+                      <tr><td colSpan={6} className="px-5 py-10 text-center font-[var(--font-body)] italic text-fg3">No guests yet. Add one above or import a CSV.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
@@ -261,6 +350,105 @@ export default function AdminPage() {
           )}
         </div>
       </div>
+
+      {/* ── ADD GUEST MODAL ── */}
+      {showAddGuest && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6" onClick={() => setShowAddGuest(false)}>
+          <div className="bg-cream-bright rounded-[8px] p-8 w-full max-w-md shadow-xl" onClick={e => e.stopPropagation()}>
+            <h2 className="font-[var(--font-display)] font-medium text-[24px] text-fg1 mb-6">Add a guest</h2>
+            <div className="flex flex-col gap-4">
+              {[
+                { label: 'Name', key: 'name', ph: 'e.g. The Harrison Family' },
+                { label: 'Email', key: 'email', ph: 'guest@example.com' },
+              ].map(f => (
+                <label key={f.key} className="block">
+                  <span className="block font-[var(--font-ui)] text-[11px] tracking-[0.16em] uppercase text-fg3 mb-1.5">{f.label}</span>
+                  <input
+                    type={f.key === 'email' ? 'email' : 'text'}
+                    placeholder={f.ph}
+                    value={addForm[f.key as keyof typeof addForm]}
+                    onChange={e => setAddForm(a => ({ ...a, [f.key]: e.target.value }))}
+                    onKeyDown={e => e.key === 'Enter' && addGuest()}
+                    className="w-full font-[var(--font-ui)] text-[14px] text-fg1 bg-cream border border-sage-200 rounded-[4px] px-4 py-2.5 outline-none focus:border-gold-500 transition-colors"
+                  />
+                </label>
+              ))}
+              <label className="block">
+                <span className="block font-[var(--font-ui)] text-[11px] tracking-[0.16em] uppercase text-fg3 mb-1.5">
+                  Max guests in party
+                </span>
+                <select
+                  value={addForm.maxGuests}
+                  onChange={e => setAddForm(a => ({ ...a, maxGuests: e.target.value }))}
+                  className="w-full font-[var(--font-ui)] text-[14px] text-fg1 bg-cream border border-sage-200 rounded-[4px] px-4 py-2.5 outline-none focus:border-gold-500 transition-colors"
+                >
+                  {[1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </label>
+              <div className="flex gap-3 mt-2">
+                <button onClick={addGuest}
+                  className="flex-1 bg-gold-500 text-forest-800 font-[var(--font-ui)] text-[12px] tracking-[0.18em] uppercase py-3 rounded-[4px] border-none cursor-pointer hover:bg-gold-700 transition-colors">
+                  Add guest
+                </button>
+                <button onClick={() => setShowAddGuest(false)}
+                  className="flex-1 bg-transparent text-fg2 font-[var(--font-ui)] text-[12px] tracking-[0.18em] uppercase py-3 rounded-[4px] border border-sage-200 cursor-pointer hover:bg-sage-100 transition-colors">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── CSV IMPORT MODAL ── */}
+      {showCsvImport && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6" onClick={() => setShowCsvImport(false)}>
+          <div className="bg-cream-bright rounded-[8px] p-8 w-full max-w-lg shadow-xl" onClick={e => e.stopPropagation()}>
+            <h2 className="font-[var(--font-display)] font-medium text-[24px] text-fg1 mb-2">Import from CSV</h2>
+            <p className="font-[var(--font-body)] text-[15px] text-fg3 mb-5 italic">
+              Paste your spreadsheet data below. Three columns: Name, Email, Max guests (optional).
+            </p>
+            <div className="bg-sage-100 rounded-[4px] px-4 py-3 mb-4 font-mono text-[12px] text-fg3">
+              The Harrison Family, harrisonf@email.com, 4<br/>
+              Rebecca &amp; Tom Walsh, becca@email.com, 2<br/>
+              Grandma Edith, edith@email.com, 1
+            </div>
+            <textarea
+              rows={6}
+              placeholder="Paste your guest list here…"
+              value={csvText}
+              onChange={e => { setCsvText(e.target.value); parseCsv(e.target.value) }}
+              className="w-full font-mono text-[13px] text-fg1 bg-cream border border-sage-200 rounded-[4px] px-4 py-3 outline-none focus:border-gold-500 transition-colors resize-none mb-4"
+            />
+            {csvPreview.length > 0 && (
+              <div className="mb-4">
+                <p className="font-[var(--font-ui)] text-[11px] tracking-[0.16em] uppercase text-fg3 mb-2">
+                  Preview — {csvPreview.length} guest{csvPreview.length !== 1 ? 's' : ''} ready to import
+                </p>
+                <div className="max-h-40 overflow-y-auto border border-sage-200 rounded-[4px]">
+                  {csvPreview.map((r, i) => (
+                    <div key={i} className="flex justify-between px-4 py-2 border-b border-sage-200 last:border-0 text-[13px]">
+                      <span className="font-medium text-fg1">{r.name}</span>
+                      <span className="text-fg3">{r.email}</span>
+                      <span className="text-fg3">{r.maxGuests} guest{r.maxGuests !== 1 ? 's' : ''}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="flex gap-3">
+              <button onClick={importCsv} disabled={csvPreview.length === 0}
+                className="flex-1 bg-gold-500 text-forest-800 font-[var(--font-ui)] text-[12px] tracking-[0.18em] uppercase py-3 rounded-[4px] border-none cursor-pointer hover:bg-gold-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                Import {csvPreview.length > 0 ? `${csvPreview.length} guests` : ''}
+              </button>
+              <button onClick={() => { setShowCsvImport(false); setCsvText(''); setCsvPreview([]) }}
+                className="flex-1 bg-transparent text-fg2 font-[var(--font-ui)] text-[12px] tracking-[0.18em] uppercase py-3 rounded-[4px] border border-sage-200 cursor-pointer hover:bg-sage-100 transition-colors">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast */}
       {toast && (
