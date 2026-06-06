@@ -309,7 +309,7 @@ export default function HomePage() {
       </section>
 
       {/* ══ FULL-BLEED PHOTO — Ribble Valley view ══ */}
-      <PhotoBreak src="/assets/venue/anna-8.jpg" alt="The Ribble Valley from Hobbit Hill" height={500} overlay={0.1} />
+      <PhotoBreak src="/assets/venue/venue-summer.jpg" alt="Hobbit Hill on a summer's day" height={500} overlay={0.08} />
 
       {/* ══ THE DAY ══ */}
       <section className="px-8 py-24">
