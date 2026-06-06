@@ -1,6 +1,6 @@
 'use client'
 import { useState, useCallback } from 'react'
-import type { Guest } from '@/lib/types'
+import type { Guest, GuestPerson } from '@/lib/types'
 
 function inviteUrl(token: string) {
   // Always use the current origin (the live Vercel URL or custom domain),
@@ -49,6 +49,7 @@ export default function AdminPage() {
   const [guestFilter, setGuestFilter] = useState<'all'|'attending'|'pending'|'declined'>('all')
   const [showAddGuest, setShowAddGuest] = useState(false)
   const [showCsvImport, setShowCsvImport] = useState(false)
+  const [editing, setEditing] = useState<Guest | null>(null)
   const [addForm, setAddForm] = useState({ name: '', email: '', maxGuests: '2' })
   const [csvText, setCsvText] = useState('')
   const [csvPreview, setCsvPreview] = useState<{name:string;email:string;maxGuests:number}[]>([])
@@ -300,7 +301,7 @@ export default function AdminPage() {
               {/* Table */}
               <div className="bg-cream-bright border border-sage-200 rounded-[8px] shadow-sm overflow-hidden">
                 <table className="w-full font-[var(--font-ui)] text-[13px] border-collapse">
-                  <thead><tr className="bg-sage-100">{['Name','Email','Status','Coming','Responded','Invite link'].map(h => <th key={h} className="text-left px-5 py-3 font-[var(--font-ui)] text-[11px] tracking-[0.18em] uppercase text-fg3 border-b border-sage-200 whitespace-nowrap">{h}</th>)}</tr></thead>
+                  <thead><tr className="bg-sage-100">{['Name','Email','Status','Coming','Responded','Invite link',''].map(h => <th key={h} className="text-left px-5 py-3 font-[var(--font-ui)] text-[11px] tracking-[0.18em] uppercase text-fg3 border-b border-sage-200 whitespace-nowrap">{h}</th>)}</tr></thead>
                   <tbody>
                     {guests
                       .filter(g => guestFilter === 'all' || g.status === guestFilter)
@@ -346,10 +347,18 @@ export default function AdminPage() {
                             </button>
                           ) : <span className="text-fg3">—</span>}
                         </td>
+                        <td className="px-5 py-3">
+                          <button
+                            onClick={() => setEditing(g)}
+                            className="font-[var(--font-ui)] text-[11px] tracking-[0.12em] uppercase text-sage-700 hover:text-fg1 transition-colors bg-none border-none cursor-pointer"
+                          >
+                            Edit
+                          </button>
+                        </td>
                       </tr>
                     ))}
                     {guests.length === 0 && (
-                      <tr><td colSpan={6} className="px-5 py-10 text-center font-[var(--font-body)] italic text-fg3">No guests yet. Add one above or import a CSV.</td></tr>
+                      <tr><td colSpan={7} className="px-5 py-10 text-center font-[var(--font-body)] italic text-fg3">No guests yet. Add one above or import a CSV.</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -504,6 +513,16 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* ── EDIT GUEST MODAL ── */}
+      {editing && (
+        <EditGuestModal
+          guest={editing}
+          pw={pw}
+          onClose={() => setEditing(null)}
+          onSaved={(msg) => { setEditing(null); fetchGuests(); showToast(msg) }}
+        />
+      )}
+
       {/* Toast */}
       {toast && (
         <div className="fixed bottom-7 right-7 bg-forest-800 text-[var(--on-sage-1)] px-5 py-3.5 rounded-[8px] font-[var(--font-ui)] text-[13px] shadow-lg animate-fade-in z-50">
@@ -574,6 +593,135 @@ function InviteTab({ guests, onSent }: { guests: Guest[]; onSent: (m: string) =>
             )}
           </tbody>
         </table>
+      </div>
+    </div>
+  )
+}
+
+/* ── Edit a guest's RSVP (admin override) ── */
+const MEAL_OPTIONS = ['Chicken', 'Beef', 'Vegetarian', 'Vegan', 'Child'] as const
+
+function EditGuestModal({ guest, pw, onClose, onSaved }: {
+  guest: Guest
+  pw: string
+  onClose: () => void
+  onSaved: (msg: string) => void
+}) {
+  const [name, setName] = useState(guest.name)
+  const [email, setEmail] = useState(guest.email)
+  const [status, setStatus] = useState<'pending' | 'attending' | 'declined'>(guest.status)
+  const [maxGuests, setMaxGuests] = useState(String(guest.max_guests ?? 2))
+  const [people, setPeople] = useState<GuestPerson[]>(
+    guest.guests_json?.length ? guest.guests_json : [{ name: guest.name, meal: 'Chicken' }]
+  )
+  const [song, setSong] = useState(guest.song || '')
+  const [notes, setNotes] = useState(guest.notes || '')
+  const [saving, setSaving] = useState(false)
+
+  function setPerson(i: number, field: keyof GuestPerson, v: string) {
+    setPeople(p => p.map((x, idx) => idx === i ? { ...x, [field]: v } : x))
+  }
+  function addPerson() { setPeople(p => [...p, { name: '', meal: 'Chicken' }]) }
+  function removePerson(i: number) { setPeople(p => p.length > 1 ? p.filter((_, idx) => idx !== i) : p) }
+
+  async function save() {
+    if (!name.trim() || !email.trim()) { onSaved('Error: name and email required.'); return }
+    setSaving(true)
+    const cleanPeople = status === 'attending'
+      ? people.filter(p => p.name.trim()).map(p => ({ name: p.name.trim(), meal: p.meal }))
+      : []
+    const updates = {
+      id: guest.id,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      status,
+      max_guests: parseInt(maxGuests) || 2,
+      party_size: cleanPeople.length,
+      guests_json: cleanPeople,
+      song: song.trim(),
+      notes: notes.trim(),
+      // mark as responded if the host moves them off pending
+      responded_at: status === 'pending' ? null : (guest.responded_at || new Date().toISOString()),
+    }
+    const r = await fetch('/api/admin/guests', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': pw },
+      body: JSON.stringify(updates),
+    })
+    setSaving(false)
+    if (r.ok) onSaved(`${name.trim()} updated`)
+    else {
+      const d = await r.json().catch(() => ({}))
+      onSaved(`Error: ${d.error || 'could not save.'}`)
+    }
+  }
+
+  const label = 'block font-[var(--font-ui)] text-[11px] tracking-[0.16em] uppercase text-fg3 mb-1.5'
+  const input = 'w-full font-[var(--font-ui)] text-[14px] text-fg1 bg-cream border border-sage-200 rounded-[4px] px-4 py-2.5 outline-none focus:border-gold-500 transition-colors'
+
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6 overflow-y-auto" onClick={onClose}>
+      <div className="bg-cream-bright rounded-[8px] p-8 w-full max-w-lg shadow-xl my-8" onClick={e => e.stopPropagation()}>
+        <h2 className="font-[var(--font-display)] font-medium text-[24px] text-fg1 mb-1">Edit guest</h2>
+        <p className="font-[var(--font-body)] text-[14px] italic text-fg3 mb-6">Use this when a guest needs to change their reply after responding.</p>
+
+        <div className="flex flex-col gap-4">
+          <label className="block"><span className={label}>Invitation name</span>
+            <input className={input} value={name} onChange={e => setName(e.target.value)} /></label>
+          <label className="block"><span className={label}>Email</span>
+            <input className={input} type="email" value={email} onChange={e => setEmail(e.target.value)} /></label>
+
+          <div className="grid grid-cols-2 gap-4">
+            <label className="block"><span className={label}>Status</span>
+              <select className={input} value={status} onChange={e => setStatus(e.target.value as typeof status)}>
+                <option value="pending">Pending</option>
+                <option value="attending">Attending</option>
+                <option value="declined">Declined</option>
+              </select></label>
+            <label className="block"><span className={label}>Max party size</span>
+              <select className={input} value={maxGuests} onChange={e => setMaxGuests(e.target.value)}>
+                {[1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n}</option>)}
+              </select></label>
+          </div>
+
+          {status === 'attending' && (
+            <div>
+              <span className={label}>Guests coming (name &amp; meal)</span>
+              <div className="flex flex-col gap-2">
+                {people.map((p, i) => (
+                  <div key={i} className="grid gap-2 items-center" style={{ gridTemplateColumns: '1fr 130px 32px' }}>
+                    <input className={input} placeholder={`Guest ${i + 1}`} value={p.name} onChange={e => setPerson(i, 'name', e.target.value)} />
+                    <select className={input} value={p.meal} onChange={e => setPerson(i, 'meal', e.target.value)}>
+                      {MEAL_OPTIONS.map(m => <option key={m} value={m}>{m}</option>)}
+                    </select>
+                    <button onClick={() => removePerson(i)} disabled={people.length <= 1}
+                      className="w-8 h-8 rounded-[4px] border border-sage-200 bg-transparent text-fg3 text-[16px] flex items-center justify-center cursor-pointer disabled:opacity-35 hover:border-sage-400">&times;</button>
+                  </div>
+                ))}
+              </div>
+              <button onClick={addPerson}
+                className="mt-2 bg-none border-none cursor-pointer font-[var(--font-ui)] text-[11px] tracking-[0.16em] uppercase text-gold-700 flex items-center gap-1.5 hover:text-gold-500 transition-colors">
+                <span className="text-[15px]">+</span> Add guest
+              </button>
+            </div>
+          )}
+
+          <label className="block"><span className={label}>Song request</span>
+            <input className={input} value={song} onChange={e => setSong(e.target.value)} placeholder="Artist — Title" /></label>
+          <label className="block"><span className={label}>Notes / dietary</span>
+            <textarea className={`${input} resize-y`} rows={2} value={notes} onChange={e => setNotes(e.target.value)} /></label>
+
+          <div className="flex gap-3 mt-2">
+            <button onClick={save} disabled={saving}
+              className="flex-1 bg-gold-500 text-forest-800 font-[var(--font-ui)] text-[12px] tracking-[0.18em] uppercase py-3 rounded-[4px] border-none cursor-pointer hover:bg-gold-700 transition-colors disabled:opacity-50">
+              {saving ? 'Saving…' : 'Save changes'}
+            </button>
+            <button onClick={onClose}
+              className="flex-1 bg-transparent text-fg2 font-[var(--font-ui)] text-[12px] tracking-[0.18em] uppercase py-3 rounded-[4px] border border-sage-200 cursor-pointer hover:bg-sage-100 transition-colors">
+              Cancel
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )
