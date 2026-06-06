@@ -11,9 +11,11 @@ export interface Guest {
   email: string
   status: RSVPStatus
   party_size: number
+  max_guests: number
   guests_json: GuestPerson[]
   song: string
   notes: string
+  invite_token: string | null
   invite_sent_at: string | null
   responded_at: string | null
   created_at: string

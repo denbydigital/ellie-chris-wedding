@@ -31,6 +31,7 @@ export default async function GatePage({
 }) {
   const params = await searchParams
   const token = params.invite
+  const declined = params.declined === '1'
   const guest = token ? await getGuestByToken(token) : null
 
   return (
@@ -60,12 +61,23 @@ export default async function GatePage({
           <p className="font-[var(--font-ui)] text-[13px] tracking-[0.28em] uppercase text-[var(--on-sage-2)]">
             Hobbit Hill &middot; Clitheroe
           </p>
-          <p className="font-[var(--font-script)] text-[30px] leading-none text-[var(--on-sage-1)] mt-5">
-            An unexpected journey begins
-          </p>
+          {!declined && (
+            <p className="font-[var(--font-script)] text-[30px] leading-none text-[var(--on-sage-1)] mt-5">
+              An unexpected journey begins
+            </p>
+          )}
 
-          {/* Personalised greeting */}
-          {guest && (
+          {/* Declined confirmation — gracious dead-end */}
+          {declined && (
+            <div className="mt-7 pt-6 border-t border-[var(--line-on-sage)]">
+              <p className="font-[var(--font-body)] text-[18px] leading-[1.7] text-[var(--on-sage-1)] max-w-[440px] mx-auto">
+                Thank you for letting us know — we&apos;ll truly miss you, and we&apos;ll raise a glass to you on the day.
+              </p>
+            </div>
+          )}
+
+          {/* Personalised greeting (only when still replying) */}
+          {!declined && guest && (
             <div className="mt-7 pt-6 border-t border-[var(--line-on-sage)]">
               <p className="font-[var(--font-body)] italic text-[18px] leading-[1.65] text-[var(--on-sage-2)]">
                 Dear {guest.name},
@@ -77,22 +89,26 @@ export default async function GatePage({
           )}
         </div>
 
-        {/* RSVP form — pre-filled if we have a guest record */}
-        <RSVPForm
-          prefill={guest ? {
-            name: guest.name,
-            email: guest.email,
-            maxGuests: guest.max_guests ?? 8,
-            existingGuests: (guest.guests_json ?? []) as { name: string; meal: 'Chicken' | 'Beef' | 'Vegetarian' | 'Vegan' | 'Child' }[],
-            existingSong: guest.song,
-            existingNotes: guest.notes,
-            existingStatus: guest.status as 'pending' | 'attending' | 'declined',
-          } : undefined}
-        />
+        {/* RSVP form — hidden once declined */}
+        {!declined && (
+          <>
+            <RSVPForm
+              prefill={guest ? {
+                name: guest.name,
+                email: guest.email,
+                maxGuests: guest.max_guests ?? 8,
+                existingGuests: (guest.guests_json ?? []) as { name: string; meal: 'Chicken' | 'Beef' | 'Vegetarian' | 'Vegan' | 'Child' }[],
+                existingSong: guest.song,
+                existingNotes: guest.notes,
+                existingStatus: guest.status as 'pending' | 'attending' | 'declined',
+              } : undefined}
+            />
 
-        <p className="font-[var(--font-body)] text-[14px] text-[var(--on-sage-3)] mt-5 italic">
-          Kindly reply by 1 April 2027. One reply per invitation.
-        </p>
+            <p className="font-[var(--font-body)] text-[14px] text-[var(--on-sage-3)] mt-5 italic">
+              Kindly reply by 1 April 2027. One reply per invitation.
+            </p>
+          </>
+        )}
       </div>
     </div>
   )

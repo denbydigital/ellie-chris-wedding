@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import GoldDivider from '@/components/ui/GoldDivider'
@@ -20,11 +20,11 @@ function Reveal({ children, className = '', variants = fadeUp, delay = 0 }: {
 }
 
 /* ─── Countdown ─── */
+const WEDDING_DATE = new Date('2027-07-10T13:00:00').getTime()
 function Countdown() {
-  const target = new Date('2027-07-10T13:00:00')
-  const [diff, setDiff] = useState(Math.max(0, target.getTime() - Date.now()))
+  const [diff, setDiff] = useState(Math.max(0, WEDDING_DATE - Date.now()))
   useEffect(() => {
-    const t = setInterval(() => setDiff(Math.max(0, target.getTime() - Date.now())), 1000)
+    const t = setInterval(() => setDiff(Math.max(0, WEDDING_DATE - Date.now())), 1000)
     return () => clearInterval(t)
   }, [])
   const parts = [
@@ -121,7 +121,7 @@ function SectionLabel({ eyebrow, title, light = false }: { eyebrow?: string; tit
 function PhotoBreak({ src, alt, height = 560, overlay = 0.25 }: {
   src: string; alt: string; height?: number; overlay?: number
 }) {
-  const ref = React.useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
   const y = useTransform(scrollYProgress, [0, 1], [-40, 40])
   return (
@@ -136,7 +136,7 @@ function PhotoBreak({ src, alt, height = 560, overlay = 0.25 }: {
   )
 }
 
-import React from 'react'
+
 
 /* ═══════════════════════════════════════════════════════
    GALLERY DATA
@@ -286,7 +286,7 @@ export default function HomePage() {
       <section className="bg-cream px-8 py-24">
         <div className="max-w-[1000px] mx-auto">
           <SectionLabel eyebrow="How we got here" title="Our Story" />
-          <div className="grid gap-14 items-start" style={{ gridTemplateColumns: '1fr 1fr' }}>
+          <div className="grid gap-14 items-start grid-cols-1 md:grid-cols-2">
             {/* Photo */}
             <motion.div className="flex flex-col gap-5"
               variants={fadeUp} initial="hidden" whileInView="visible" viewport={VIEWPORT}>
@@ -380,7 +380,7 @@ export default function HomePage() {
       <section className="bg-cream px-8 py-24">
         <div className="max-w-[900px] mx-auto">
           <SectionLabel eyebrow="Getting here" title="Travel & Stay" />
-          <motion.div className="grid grid-cols-2 gap-5"
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-5"
             variants={stagger(0, 0.1)} initial="hidden" whileInView="visible" viewport={VIEWPORT}>
             {TRAVEL.map((c, i) => (
               <motion.div key={c.title} variants={fadeUp} transition={{ delay: i * 0.08 } as object}
@@ -403,7 +403,7 @@ export default function HomePage() {
       <section className="bg-sage-100 px-8 py-24">
         <div className="max-w-[900px] mx-auto">
           <SectionLabel eyebrow="Your presence is the present" title="Registry" />
-          <motion.div className="grid grid-cols-2 gap-5"
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-5"
             variants={stagger(0, 0.1)} initial="hidden" whileInView="visible" viewport={VIEWPORT}>
             {GIFTS.map((g, i) => (
               <motion.div key={g.title} variants={fadeUp} transition={{ delay: i * 0.08 } as object}

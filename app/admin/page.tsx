@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import type { Guest } from '@/lib/types'
 
 function inviteUrl(token: string) {
@@ -55,12 +55,20 @@ export default function AdminPage() {
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(''), msg.startsWith('Error') ? 8000 : 3000) }
 
+  const fetchGuests = useCallback(async () => {
+    setLoading(true)
+    const r = await fetch('/api/admin/guests', { headers: { 'x-admin-password': pw } })
+    if (r.ok) setGuests(await r.json())
+    setLoading(false)
+  }, [pw])
+
   async function tryLogin() {
     if (!pw) { setLoginError('Please enter the password.'); return }
     setLoggingIn(true); setLoginError('')
     try {
       const r = await fetch('/api/admin/guests', { headers: { 'x-admin-password': pw } })
       if (r.ok) {
+        setGuests(await r.json()) // reuse the verification response, no second fetch
         setAuthed(true)
       } else if (r.status === 401) {
         setLoginError('Incorrect password.')
@@ -73,16 +81,6 @@ export default function AdminPage() {
       setLoggingIn(false)
     }
   }
-
-  const fetchGuests = useCallback(async () => {
-    if (!authed) return
-    setLoading(true)
-    const r = await fetch('/api/admin/guests', { headers: { 'x-admin-password': pw } })
-    if (r.ok) setGuests(await r.json())
-    setLoading(false)
-  }, [authed, pw])
-
-  useEffect(() => { if (authed) fetchGuests() }, [authed, fetchGuests])
 
   async function addGuest() {
     if (!addForm.name.trim() || !addForm.email.trim()) { showToast('Name and email required.'); return }
@@ -189,8 +187,8 @@ export default function AdminPage() {
           ))}
         </nav>
         <div className="px-6 py-4 border-t border-white/10">
-          <a href="/" className="font-[var(--font-ui)] text-[12px] text-[var(--on-sage-3)] no-underline hover:text-[var(--on-sage-1)] transition-colors">
-            ← View wedding site
+          <a href="/" target="_blank" rel="noopener noreferrer" className="font-[var(--font-ui)] text-[12px] text-[var(--on-sage-3)] no-underline hover:text-[var(--on-sage-1)] transition-colors">
+            ↗ View wedding site
           </a>
         </div>
       </aside>
@@ -307,12 +305,12 @@ export default function AdminPage() {
                         <td className="px-5 py-3 font-medium text-fg1 whitespace-nowrap">{g.name}</td>
                         <td className="px-5 py-3 text-fg3">{g.email}</td>
                         <td className="px-5 py-3">{badge(g.status)}</td>
-                        <td className="px-5 py-3 text-fg3 text-center">{(g as Guest & { max_guests?: number }).max_guests ?? 2}</td>
+                        <td className="px-5 py-3 text-fg3 text-center">{g.max_guests ?? 2}</td>
                         <td className="px-5 py-3">
-                          {(g as Guest & { invite_token?: string }).invite_token ? (
+                          {g.invite_token ? (
                             <button
                               onClick={() => {
-                                const token = (g as Guest & { invite_token?: string }).invite_token!
+                                const token = g.invite_token!
                                 navigator.clipboard.writeText(inviteUrl(token))
                                 showToast(`Link copied for ${g.name}`)
                               }}
@@ -556,10 +554,10 @@ function InviteTab({ pw, guests, onSent }: { pw: string; guests: Guest[]; onSent
                       className="font-[var(--font-ui)] text-[11px] tracking-[0.14em] uppercase text-gold-700 bg-none border-none cursor-pointer hover:text-gold-500 transition-colors">
                       Fill form
                     </button>
-                    {(g as Guest & { invite_token?: string }).invite_token && (
+                    {g.invite_token && (
                       <button
                         onClick={() => {
-                          const token = (g as Guest & { invite_token?: string }).invite_token!
+                          const token = g.invite_token!
                           navigator.clipboard.writeText(inviteUrl(token))
                           onSent(`Personalised link copied for ${g.name}`)
                         }}
