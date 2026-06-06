@@ -344,7 +344,7 @@ export default function HomePage() {
       </section>
 
       {/* ══ FULL-BLEED PHOTO — dining room with valley views ══ */}
-      <PhotoBreak src="/assets/venue/interior.jpg" alt="The wedding breakfast room at Hobbit Hill" height={480} overlay={0.04} />
+      <PhotoBreak src="/assets/venue/arch-autumn.jpg" alt="The ceremony arch in golden autumn light" height={480} overlay={0.08} />
 
       {/* ══ TRAVEL ══ */}
       <section className="px-8 py-24">
